@@ -37,15 +37,15 @@ export function buildLoadingMessage(
 ): string {
   const { owner, repo } = context.repo;
 
-  let message = `⏳ **Analyzing changes in this PR...** ⏳\n\n`;
-  message += `_This might take a few minutes, please wait_\n\n`;
+  let message = `⏳ **Analisando alterações neste PR...** ⏳\n\n`;
+  message += `_Isso pode levar alguns minutos, por favor aguarde_\n\n`;
 
   // Group files by operation
   message += `<details>\n<summary>📥 Commits</summary>\n\n`;
-  message += `Analyzing changes from base (\`${baseCommit.slice(
+  message += `Analisando alterações da base (\`${baseCommit.slice(
     0,
     7
-  )}\`) to latest commit (\`${commits[commits.length - 1].sha.slice(
+  )}\`) até o commit mais recente (\`${commits[commits.length - 1].sha.slice(
     0,
     7
   )}\`):\n`;
@@ -61,7 +61,7 @@ export function buildLoadingMessage(
 
   message += "\n\n</details>\n\n";
 
-  message += `<details>\n<summary>📁 Files being considered (${fileDiffs.length})</summary>\n\n`;
+  message += `<details>\n<summary>📁 Arquivos sendo considerados (${fileDiffs.length})</summary>\n\n`;
   for (const diff of fileDiffs) {
     let prefix = "🔄"; // Modified
     if (diff.status === "added") prefix = "➕";
@@ -70,10 +70,10 @@ export function buildLoadingMessage(
 
     let fileText = `${prefix} ${diff.filename}`;
     if (diff.status === "renamed") {
-      fileText += ` (from ${diff.previous_filename})`;
+      fileText += ` (de ${diff.previous_filename})`;
     }
     fileText += ` _(${diff.hunks.length} ${
-      diff.hunks.length === 1 ? "hunk" : "hunks"
+      diff.hunks.length === 1 ? "trecho" : "trechos"
     })_`;
     message += `${fileText}\n`;
   }
@@ -89,15 +89,15 @@ export function buildOverviewMessage(
   summary: PullRequestSummary,
   commits: string[]
 ): string {
-  let message = `## PR Summary\n\n`;
+  let message = `## Resumo do PR\n\n`;
 
   // Add description with proper spacing
   message += `${summary.description.trim()}\n\n`;
 
-  message += `### Changes\n\n`;
+  message += `### Alterações\n\n`;
 
   // Create table with proper column alignment and escaping
-  message += `| File | Summary |\n`;
+  message += `| Arquivo | Resumo |\n`;
   message += `|:----------|:---------------|\n`; // Left-align columns
 
   for (const file of summary.files) {
@@ -139,13 +139,13 @@ export function buildReviewSummary(
   if (actionableComments.length === 0) {
     body += `✅ **LGTM!**\n\n`;
   } else {
-    body += `🚨 **Pull request needs attention.**\n\n`;
+    body += `🚨 **Pull request precisa de atenção.**\n\n`;
   }
 
-  body += "### Review Summary\n\n";
+  body += "### Resumo da Revisão\n\n";
 
   // Commits section
-  body += `<details>\n<summary>Commits Considered (${commits.length})</summary>\n\n`;
+  body += `<details>\n<summary>Commits Considerados (${commits.length})</summary>\n\n`;
   for (const commit of commits) {
     body += `- [${commit.sha.slice(0, 7)}](${getCommitUrl(
       config.githubServerUrl,
@@ -157,21 +157,21 @@ export function buildReviewSummary(
   body += "\n</details>\n\n";
 
   // Files section
-  body += `<details>\n<summary>Files Processed (${files.length})</summary>\n\n`;
+  body += `<details>\n<summary>Arquivos Processados (${files.length})</summary>\n\n`;
   for (const diff of files) {
     let fileText = `- ${diff.filename}`;
     if (diff.status === "renamed") {
-      fileText += ` (from ${diff.previous_filename})`;
+      fileText += ` (de ${diff.previous_filename})`;
     }
     fileText += ` _(${diff.hunks.length} ${
-      diff.hunks.length === 1 ? "hunk" : "hunks"
+      diff.hunks.length === 1 ? "trecho" : "trechos"
     })_`;
     body += `${fileText}\n`;
   }
   body += "\n</details>\n\n";
 
   // Actionable comments section
-  body += `<details>\n<summary>Actionable Comments (${actionableComments.length})</summary>\n\n`;
+  body += `<details>\n<summary>Comentários Acionáveis (${actionableComments.length})</summary>\n\n`;
   for (const comment of actionableComments) {
     body += `- <details>\n`;
     body += `  <summary>${comment.file} [${comment.start_line}-${comment.end_line}]</summary>\n\n`;
@@ -181,7 +181,7 @@ export function buildReviewSummary(
   body += "\n</details>\n\n";
 
   // Skipped comments section
-  body += `<details>\n<summary>Skipped Comments (${skippedComments.length})</summary>\n\n`;
+  body += `<details>\n<summary>Comentários Ignorados (${skippedComments.length})</summary>\n\n`;
   for (const comment of skippedComments) {
     body += `- <details>\n`;
     body += `  <summary>${comment.file} [${comment.start_line}-${comment.end_line}]</summary>\n\n`;

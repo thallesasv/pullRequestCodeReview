@@ -414,57 +414,57 @@ ${t.files.map(i=>Hne(i)).join(`
 </PR File Diffs>
 
 Return the JSON with all natural language fields in Brazilian Portuguese (pt-BR). Keep 'label' in English.
-`,s=E.object({file:E.string().describe("The full file path of the relevant file"),start_line:E.number().describe("The relevant line number, from a '__new hunk__' section, where the comment starts (inclusive). Should correspond to the prefix of the first line in the 'highlighted_code' snippet. If comment spans a single line, it should equal the 'end_line'"),end_line:E.number().describe("The relevant line number, from a '__new hunk__' section, where the comment ends (inclusive). Should correspond to the prefix of the last line in the 'highlighted_code' snippet. If comment spans a single line, it should equal the 'start_line'"),content:E.string().describe("An actionable comment in Brazilian Portuguese (pt-BR) to enhance, improve or fix the new code introduced in the PR. Use markdown formatting."),header:E.string().describe("A concise, single-sentence overview in Brazilian Portuguese (pt-BR) of the comment. Focus on the 'what'. Be general, and avoid method or variable names."),highlighted_code:E.string().describe("A short code snippet from a '__new hunk__' section that the comment is applicable for.Include only complete code lines, without line numbers. This snippet should represent the full specific PR code targeted for comment, at its first line should match 'startLine' and last line match 'endLine'. If the code snippet is a single line, that line should match both 'startLine' and 'endLine'"),label:E.string().describe("A single, descriptive label in English that best characterizes the suggestion type. Possible labels include 'security', 'possible bug', 'possible issue', 'performance', 'enhancement', 'best practice', 'maintainability', 'readability', and 'typo'. Other relevant English labels are also acceptable."),critical:E.boolean().describe("True if the comment is critical and the PR should not be merged without addressing the comment. False otherwise.")}),n=E.object({estimated_effort_to_review:E.number().min(1).max(5).describe("Estimate, on a scale of 1-5 (inclusive), the time and effort required to review this PR by an experienced and knowledgeable developer. 1 means short and easy review , 5 means long and hard review. Take into account the size, complexity, quality, and the needed changes of the PR code diff."),score:E.number().min(0).max(100).describe("Rate this PR on a scale of 0-100 (inclusive), where 0 means the worst possible PR code, and 100 means PR code of the highest quality, without any bugs or performance issues, that is ready to be merged immediately and run in production at scale."),has_relevant_tests:E.boolean().describe("True if the PR includes relevant tests added or updated. False otherwise."),security_concerns:E.string().describe("In Brazilian Portuguese (pt-BR), explain whether this PR code introduces possible vulnerabilities such as exposure of sensitive information (e.g., API keys, secrets, passwords), or security concerns like SQL injection, XSS, CSRF, and others. Answer 'Nao' (without explaining why) if there are no possible issues. If there are security concerns or issues, start your answer with a short header, such as: 'Exposicao de informacoes sensiveis: ...', 'SQL injection: ...' etc. Explain your answer. Be specific and give examples if possible")}),o=E.object({review:n.describe("The full review of the PR"),comments:E.array(s).describe("Comments about possible bugs, security concerns, code quality, typos or regressions introduced in this PR.")});return await IF({prompt:r,systemPrompt:e,schema:o})}var Wne=Q(()=>{"use strict";QF();pr();HF();Qc()});function Zne(t,e,r,s){return`${t.endsWith("/")?t.slice(0,-1):t}/${e}/${r}/commit/${s}`}function ky(t,e,r){let{owner:s,repo:n}=zne.context.repo,o=`\u23F3 **Analyzing changes in this PR...** \u23F3
+`,s=E.object({file:E.string().describe("The full file path of the relevant file"),start_line:E.number().describe("The relevant line number, from a '__new hunk__' section, where the comment starts (inclusive). Should correspond to the prefix of the first line in the 'highlighted_code' snippet. If comment spans a single line, it should equal the 'end_line'"),end_line:E.number().describe("The relevant line number, from a '__new hunk__' section, where the comment ends (inclusive). Should correspond to the prefix of the last line in the 'highlighted_code' snippet. If comment spans a single line, it should equal the 'start_line'"),content:E.string().describe("An actionable comment in Brazilian Portuguese (pt-BR) to enhance, improve or fix the new code introduced in the PR. Use markdown formatting."),header:E.string().describe("A concise, single-sentence overview in Brazilian Portuguese (pt-BR) of the comment. Focus on the 'what'. Be general, and avoid method or variable names."),highlighted_code:E.string().describe("A short code snippet from a '__new hunk__' section that the comment is applicable for.Include only complete code lines, without line numbers. This snippet should represent the full specific PR code targeted for comment, at its first line should match 'startLine' and last line match 'endLine'. If the code snippet is a single line, that line should match both 'startLine' and 'endLine'"),label:E.string().describe("A single, descriptive label in English that best characterizes the suggestion type. Possible labels include 'security', 'possible bug', 'possible issue', 'performance', 'enhancement', 'best practice', 'maintainability', 'readability', and 'typo'. Other relevant English labels are also acceptable."),critical:E.boolean().describe("True if the comment is critical and the PR should not be merged without addressing the comment. False otherwise.")}),n=E.object({estimated_effort_to_review:E.number().min(1).max(5).describe("Estimate, on a scale of 1-5 (inclusive), the time and effort required to review this PR by an experienced and knowledgeable developer. 1 means short and easy review , 5 means long and hard review. Take into account the size, complexity, quality, and the needed changes of the PR code diff."),score:E.number().min(0).max(100).describe("Rate this PR on a scale of 0-100 (inclusive), where 0 means the worst possible PR code, and 100 means PR code of the highest quality, without any bugs or performance issues, that is ready to be merged immediately and run in production at scale."),has_relevant_tests:E.boolean().describe("True if the PR includes relevant tests added or updated. False otherwise."),security_concerns:E.string().describe("In Brazilian Portuguese (pt-BR), explain whether this PR code introduces possible vulnerabilities such as exposure of sensitive information (e.g., API keys, secrets, passwords), or security concerns like SQL injection, XSS, CSRF, and others. Answer 'Nao' (without explaining why) if there are no possible issues. If there are security concerns or issues, start your answer with a short header, such as: 'Exposicao de informacoes sensiveis: ...', 'SQL injection: ...' etc. Explain your answer. Be specific and give examples if possible")}),o=E.object({review:n.describe("The full review of the PR"),comments:E.array(s).describe("Comments about possible bugs, security concerns, code quality, typos or regressions introduced in this PR.")});return await IF({prompt:r,systemPrompt:e,schema:o})}var Wne=Q(()=>{"use strict";QF();pr();HF();Qc()});function Zne(t,e,r,s){return`${t.endsWith("/")?t.slice(0,-1):t}/${e}/${r}/commit/${s}`}function ky(t,e,r){let{owner:s,repo:n}=zne.context.repo,o=`\u23F3 **Analisando altera\xE7\xF5es neste PR...** \u23F3
 
-`;o+=`_This might take a few minutes, please wait_
+`;o+=`_Isso pode levar alguns minutos, por favor aguarde_
 
 `,o+=`<details>
 <summary>\u{1F4E5} Commits</summary>
 
-`,o+=`Analyzing changes from base (\`${t.slice(0,7)}\`) to latest commit (\`${e[e.length-1].sha.slice(0,7)}\`):
+`,o+=`Analisando altera\xE7\xF5es da base (\`${t.slice(0,7)}\`) at\xE9 o commit mais recente (\`${e[e.length-1].sha.slice(0,7)}\`):
 `;for(let i of e.reverse())o+=`- [${i.sha.slice(0,7)}](${Zne(Ze.githubServerUrl,s,n,i.sha)}): ${i.commit.message}
 `;o+=`
 
 </details>
 
 `,o+=`<details>
-<summary>\u{1F4C1} Files being considered (${r.length})</summary>
+<summary>\u{1F4C1} Arquivos sendo considerados (${r.length})</summary>
 
-`;for(let i of r){let a="\u{1F504}";i.status==="added"&&(a="\u2795"),i.status==="removed"&&(a="\u2796"),i.status==="renamed"&&(a="\u{1F4DD}");let A=`${a} ${i.filename}`;i.status==="renamed"&&(A+=` (from ${i.previous_filename})`),A+=` _(${i.hunks.length} ${i.hunks.length===1?"hunk":"hunks"})_`,o+=`${A}
+`;for(let i of r){let a="\u{1F504}";i.status==="added"&&(a="\u2795"),i.status==="removed"&&(a="\u2796"),i.status==="renamed"&&(a="\u{1F4DD}");let A=`${a} ${i.filename}`;i.status==="renamed"&&(A+=` (de ${i.previous_filename})`),A+=` _(${i.hunks.length} ${i.hunks.length===1?"trecho":"trechos"})_`,o+=`${A}
 `}return o+=`
 </details>
 
-`,o+=$ne,o+=xy,o}function zF(t,e){let r=`## PR Summary
+`,o+=$ne,o+=xy,o}function zF(t,e){let r=`## Resumo do PR
 
 `;r+=`${t.description.trim()}
 
-`,r+=`### Changes
+`,r+=`### Altera\xE7\xF5es
 
-`,r+=`| File | Summary |
+`,r+=`| Arquivo | Resumo |
 `,r+=`|:----------|:---------------|
 `;for(let n of t.files){let o=n.filename.replace(/\|/g,"\\|"),i=n.summary.replace(/\|/g,"\\|");r+=`| \`${o}\` | ${i} |
 `}let s={commits:e};return r+=$ne,r+=xy,r+=jF,r+=JSON.stringify(s),r+=WF,r}function Kne(t,e,r,s,n){let{owner:o,repo:i}=t.repo,a="";s.length===0?a+=`\u2705 **LGTM!**
 
-`:a+=`\u{1F6A8} **Pull request needs attention.**
+`:a+=`\u{1F6A8} **Pull request precisa de aten\xE7\xE3o.**
 
-`,a+=`### Review Summary
+`,a+=`### Resumo da Revis\xE3o
 
 `,a+=`<details>
-<summary>Commits Considered (${r.length})</summary>
+<summary>Commits Considerados (${r.length})</summary>
 
 `;for(let A of r)a+=`- [${A.sha.slice(0,7)}](${Zne(Ze.githubServerUrl,o,i,A.sha)}): ${A.commit.message}
 `;a+=`
 </details>
 
 `,a+=`<details>
-<summary>Files Processed (${e.length})</summary>
+<summary>Arquivos Processados (${e.length})</summary>
 
-`;for(let A of e){let c=`- ${A.filename}`;A.status==="renamed"&&(c+=` (from ${A.previous_filename})`),c+=` _(${A.hunks.length} ${A.hunks.length===1?"hunk":"hunks"})_`,a+=`${c}
+`;for(let A of e){let c=`- ${A.filename}`;A.status==="renamed"&&(c+=` (de ${A.previous_filename})`),c+=` _(${A.hunks.length} ${A.hunks.length===1?"trecho":"trechos"})_`,a+=`${c}
 `}a+=`
 </details>
 
 `,a+=`<details>
-<summary>Actionable Comments (${s.length})</summary>
+<summary>Coment\xE1rios Acion\xE1veis (${s.length})</summary>
 
 `;for(let A of s)a+=`- <details>
 `,a+=`  <summary>${A.file} [${A.start_line}-${A.end_line}]</summary>
@@ -475,7 +475,7 @@ Return the JSON with all natural language fields in Brazilian Portuguese (pt-BR)
 </details>
 
 `,a+=`<details>
-<summary>Skipped Comments (${n.length})</summary>
+<summary>Coment\xE1rios Ignorados (${n.length})</summary>
 
 `;for(let A of n)a+=`- <details>
 `,a+=`  <summary>${A.file} [${A.start_line}-${A.end_line}]</summary>

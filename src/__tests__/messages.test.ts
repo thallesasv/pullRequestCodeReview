@@ -60,7 +60,7 @@ describe('Messages', () => {
   test('buildLoadingMessage formats correctly', () => {
     const message = buildLoadingMessage('base-sha', mockCommits, mockFileDiffs);
 
-    expect(message).toContain('Analyzing changes in this PR');
+    expect(message).toContain('Analisando alterações neste PR');
     expect(message).toContain('base-sh');
     expect(message).toContain('abc123');
     expect(message).toContain('def456');
@@ -85,7 +85,7 @@ describe('Messages', () => {
 
     const message = buildOverviewMessage(mockSummary, ['commit1', 'commit2']);
 
-    expect(message).toContain('PR Summary');
+    expect(message).toContain('Resumo do PR');
     expect(message).toContain('This is a test PR');
     expect(message).toContain('src/test1.ts');
     expect(message).toContain('Modified test file');
@@ -132,12 +132,12 @@ describe('Messages', () => {
       mockSkippedComments
     );
 
-    expect(summary).toContain('Pull request needs attention');
-    expect(summary).toContain('Review Summary');
-    expect(summary).toContain('Commits Considered (2)');
-    expect(summary).toContain('Files Processed (2)');
-    expect(summary).toContain('Actionable Comments (1)');
-    expect(summary).toContain('Skipped Comments (1)');
+    expect(summary).toContain('Pull request precisa de atenção');
+    expect(summary).toContain('Resumo da Revisão');
+    expect(summary).toContain('Commits Considerados (2)');
+    expect(summary).toContain('Arquivos Processados (2)');
+    expect(summary).toContain('Comentários Acionáveis (1)');
+    expect(summary).toContain('Comentários Ignorados (1)');
     expect(summary).toContain('src/test1.ts [2-3]');
     expect(summary).toContain('possible bug: "Potential issue"');
     expect(summary).toContain('src/test2.ts [1-1]');
@@ -155,8 +155,8 @@ describe('Messages', () => {
     );
     
     expect(summary).toContain('LGTM!');
-    expect(summary).toContain('Actionable Comments (0)');
-    expect(summary).toContain('Skipped Comments (0)');
+    expect(summary).toContain('Comentários Acionáveis (0)');
+    expect(summary).toContain('Comentários Ignorados (0)');
     expect(summary).toContain('https://github.com/test-owner/test-repo/commit/');
   });
 
