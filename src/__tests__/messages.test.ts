@@ -133,15 +133,15 @@ describe('Messages', () => {
     );
 
     expect(summary).toContain('Pull request precisa de atenção');
-    expect(summary).toContain('Resumo da Revisão');
+    expect(summary).toContain('Resumo do Code Review');
     expect(summary).toContain('Commits Considerados (2)');
-    expect(summary).toContain('Arquivos Processados (2)');
-    expect(summary).toContain('Comentários Acionáveis (1)');
+    expect(summary).toContain('Arquivos analisados (2)');
+    expect(summary).toContain('Pontos de Ação (1)');
     expect(summary).toContain('Comentários Ignorados (1)');
     expect(summary).toContain('src/test1.ts [2-3]');
-    expect(summary).toContain('possible bug: "Potential issue"');
+    expect(summary).toContain('possível bug: "Potential issue"');
     expect(summary).toContain('src/test2.ts [1-1]');
-    expect(summary).toContain('style: "Style suggestion"');
+    expect(summary).toContain('estilo: "Style suggestion"');
     expect(summary).toContain('https://github.com/test-owner/test-repo/commit/');
   });
 
@@ -155,7 +155,7 @@ describe('Messages', () => {
     );
     
     expect(summary).toContain('LGTM!');
-    expect(summary).toContain('Comentários Acionáveis (0)');
+    expect(summary).toContain('Pontos de Ação (0)');
     expect(summary).toContain('Comentários Ignorados (0)');
     expect(summary).toContain('https://github.com/test-owner/test-repo/commit/');
   });
