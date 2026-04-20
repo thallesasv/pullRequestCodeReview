@@ -201,13 +201,30 @@ export async function handlePullRequest() {
 
   // ======= START REVIEW =======
 
-  const review = await runReviewPrompt({
-    files: filesToReview,
-    prTitle: pull_request.title,
-    prDescription: pull_request.body || "",
-    prSummary: summary.description,
-  });
-  info(`reviewed pull request`);
+  let review: Awaited<ReturnType<typeof runReviewPrompt>>;
+  try {
+    review = await runReviewPrompt({
+      files: filesToReview,
+      prTitle: pull_request.title,
+      prDescription: pull_request.body || "",
+      prSummary: summary.description,
+    });
+    info(`reviewed pull request`);
+  } catch (error) {
+    warning(`error generating review: ${error}`);
+    warning(
+      "continuing without inline comments to avoid failing the workflow"
+    );
+    review = {
+      review: {
+        estimated_effort_to_review: 1,
+        score: 0,
+        has_relevant_tests: false,
+        security_concerns: "Nao",
+      },
+      comments: [],
+    };
+  }
 
   // Post review comments
   const comments = review.comments.filter(

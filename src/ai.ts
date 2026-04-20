@@ -1,6 +1,7 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
+import { warning } from "@actions/core";
 import { z } from "zod";
 import config from "./config";
 import { AISDKProvider } from "./providers/ai-sdk";
@@ -244,6 +245,15 @@ type ModelConfig = {
   temperature?: number;
 };
 
+function isSchemaValidationError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+
+  const text = `${error.name} ${error.message}`;
+  return /TypeValidationError|AI_TypeValidationError|NoObjectGeneratedError/i.test(
+    text
+  );
+}
+
 export async function runPrompt({
   prompt,
   systemPrompt,
@@ -287,11 +297,37 @@ export async function runPrompt({
   // Get the appropriate provider for this model
   const provider = AIProviderFactory.getProvider(providerType, modelConfig);
 
-  // Run the inference using the provider
-  return await provider.runInference({
+  const inferenceConfig = {
     prompt,
     temperature: modelConfig.temperature,
     system: systemPrompt,
     schema,
-  });
+  };
+
+  try {
+    // Run the inference using the provider
+    return await provider.runInference(inferenceConfig);
+  } catch (error) {
+    if (!isSchemaValidationError(error)) {
+      throw error;
+    }
+
+    warning(
+      "LLM output failed schema validation. Retrying once with stricter JSON formatting instructions."
+    );
+    warning(`Validation error details: ${error instanceof Error ? error.message : String(error)}`);
+
+    try {
+      return await provider.runInference({
+        ...inferenceConfig,
+        system: `${systemPrompt ?? ""}\n\nIMPORTANT: You MUST return a valid JSON object that strictly matches the required schema. Do not include markdown, code fences, or any explanations. Only return the JSON object.`,
+        prompt: `${prompt}\n\nRETURN ONLY A VALID JSON OBJECT. No markdown. No code fences. No extra text. JSON ONLY.`,
+      });
+    } catch (retryError) {
+      warning(
+        `Retry also failed: ${retryError instanceof Error ? retryError.message : String(retryError)}`
+      );
+      throw retryError;
+    }
+  }
 }

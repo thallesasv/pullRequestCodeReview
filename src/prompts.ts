@@ -33,10 +33,11 @@ export async function runSummaryPrompt(
 - Keep in mind that the 'Original title', 'Original description' and 'Commit messages' sections may be partial, simplistic, non-informative or out of date. Hence, compare them to the PR diff code, and use them only as a reference.
 - The generated title and description should prioritize the most significant changes.
 - When quoting variables or names from the code, use backticks (\`).
-- Return a summary for each single affected file or if there is nothing to summarize simply use the status of the change (ie. "New file").
-- Start the overview with a verb at past tense like "Started", "Commented", "Generated" etc...
+- Return a summary for each single affected file or if there is nothing to summarize simply use the status of the change (ie. "Novo arquivo").
+- Start the overview with a verb at past tense like "Iniciou", "Comentou", "Gerou" etc...
 
 IMPORTANT: Do not make assumptions about the code outside the diff. Do not assume variable could be optional if you don't see the type declaration. Do not suggest null checks unless you are sure this could lead to a runtime error.
+- CRITICAL LANGUAGE RULE: All natural language output must be in Brazilian Portuguese (pt-BR). Keep code identifiers, file paths, and code snippets unchanged. Rewrite any field that comes in English to pt-BR.
 \n`;
 
   let userPrompt = `
@@ -59,6 +60,9 @@ ${pr.files.map((file) => formatFileDiff(file)).join("\n\n")}
 </File Diffs>
 
 Make sure each affected file is summarized and it's part of the returned JSON.
+IMPORTANT: Return all natural language fields (title, description, file summaries) in Brazilian Portuguese (pt-BR).
+Keep code identifiers, file paths, and code snippets unchanged.
+If the summary or titles come in English, rewrite them to pt-BR before returning the final JSON.
 `;
 
   const fileSchema = z.object({
@@ -66,12 +70,12 @@ Make sure each affected file is summarized and it's part of the returned JSON.
     summary: z
       .string()
       .describe(
-        "Concise summary of the file changes in markdown format (max 70 words)"
+        "Concise summary in Brazilian Portuguese (pt-BR) of the file changes in markdown format (max 70 words)"
       ),
     title: z
       .string()
       .describe(
-        "An informative title for the changes in this file, describing its main theme (5-10 words)."
+        "An informative title in Brazilian Portuguese (pt-BR) for the changes in this file, describing its main theme (5-10 words)."
       ),
   });
 
@@ -79,19 +83,19 @@ Make sure each affected file is summarized and it's part of the returned JSON.
     title: z
       .string()
       .describe(
-        "Informative title of the PR, describing its main theme (10 words max)"
+        "Informative title in Brazilian Portuguese (pt-BR) of the PR, describing its main theme (10 words max)"
       ),
     description: z
       .string()
-      .describe("Informative description of the PR, describing its main theme"),
+      .describe("Informative description in Brazilian Portuguese (pt-BR) of the PR, describing its main theme"),
     files: z
       .array(fileSchema)
       .describe(
-        "List of files affected in the PR and summaries of their changes"
+        "List of files affected in the PR and summaries of their changes (in Brazilian Portuguese pt-BR)"
       ),
     type: z
       .array(z.string())
-      .describe("One or more types that describe this PR's main theme. Example: BUG, TESTS, ENHANCEMENT, DOCUMENTATION, SECURITY, OTHER"),
+      .describe("One or more types that describe this PR's main theme. Keep in English. Example: BUG, TESTS, ENHANCEMENT, DOCUMENTATION, SECURITY, OTHER"),
   });
 
   return (await runPrompt({
@@ -180,6 +184,10 @@ __new hunk__
 - Do not return comments that are even slightly similar to other existing comments for the same hunk diffs.
 - If you cannot find any actionable comments, return an empty array.
 - VERY IMPORTANT: Keep in mind you're only seeing part of the code, and the code might be incomplete. Do not make assumptions about the code outside the diff.
+- Write all natural language review text in Brazilian Portuguese (pt-BR), including 'comments[].header', 'comments[].content', and 'review.security_concerns'.
+- Keep code identifiers, method names, file paths, and code snippets exactly as they appear in the diff.
+- Keep 'comments[].label' in English.
+- CRITICAL LANGUAGE RULE: If any natural language field is in English, rewrite it to pt-BR before returning the final JSON.
 
 ${config.styleGuideRules && config.styleGuideRules.length > 0
       ? `Guidelines for the review, such as style guides, conventions, or best practices, violating the following guidelines should result in a critical comment:
@@ -212,6 +220,9 @@ ${config.styleGuideRules}`
     ]
 }
 </EXAMPLE>
+
+FINAL CRITICAL INSTRUCTION:
+Your response MUST be ONLY a valid JSON object. Do not include any text before or after the JSON. Do not use markdown code fences. Do not add explanations. Return ONLY the JSON object that matches the schema shown above.
 `;
 
 
@@ -231,6 +242,35 @@ ${pr.prSummary}
 <PR File Diffs>
 ${pr.files.map((file) => generateFileCodeDiff(file)).join("\n\n")}
 </PR File Diffs>
+
+RESPONSE FORMAT:
+Return ONLY a valid JSON object with this exact structure:
+{
+  "review": {
+    "estimated_effort_to_review": <number 1-5>,
+    "score": <number 0-100>,
+    "has_relevant_tests": <boolean>,
+    "security_concerns": "<string in Portuguese (pt-BR)>"
+  },
+  "comments": [
+    {
+      "file": "<filename>",
+      "start_line": <number>,
+      "end_line": <number>,
+      "highlighted_code": "<code snippet>",
+      "header": "<single sentence in Portuguese>",
+      "content": "<detailed explanation in Portuguese>",
+      "label": "<English label>",
+      "critical": <boolean>
+    }
+  ]
+}
+
+CRITICAL RULES:
+- Return ONLY the JSON object, no markdown, no code fences, no explanations
+- All natural language fields (header, content, security_concerns) MUST be in Brazilian Portuguese (pt-BR)
+- Keep label in English
+- If no issues found, return empty comments array: "comments": []
 `;
 
   const commentSchema = z.object({
@@ -248,12 +288,12 @@ ${pr.files.map((file) => generateFileCodeDiff(file)).join("\n\n")}
     content: z
       .string()
       .describe(
-        "An actionable comment to enhance, improve or fix the new code introduced in the PR. Use markdown formatting."
+        "An actionable comment in Brazilian Portuguese (pt-BR) to enhance, improve or fix the new code introduced in the PR. Use markdown formatting."
       ),
     header: z
       .string()
       .describe(
-        "A concise, single-sentence overview of the comment. Focus on the 'what'. Be general, and avoid method or variable names."
+        "A concise, single-sentence overview in Brazilian Portuguese (pt-BR) of the comment. Focus on the 'what'. Be general, and avoid method or variable names."
       ),
     highlighted_code: z
       .string()
@@ -263,7 +303,7 @@ ${pr.files.map((file) => generateFileCodeDiff(file)).join("\n\n")}
     label: z
       .string()
       .describe(
-        "A single, descriptive label that best characterizes the suggestion type. Possible labels include 'security', 'possible bug', 'possible issue', 'performance', 'enhancement', 'best practice', 'maintainability', 'readability'. Other relevant labels are also acceptable."
+        "A single, descriptive label in English that best characterizes the suggestion type. Possible labels include 'security', 'possible bug', 'possible issue', 'performance', 'enhancement', 'best practice', 'maintainability', 'readability', and 'typo'. Other relevant English labels are also acceptable."
       ),
     critical: z
       .boolean()
@@ -295,7 +335,7 @@ ${pr.files.map((file) => generateFileCodeDiff(file)).join("\n\n")}
     security_concerns: z
       .string()
       .describe(
-        "Does this PR code introduce possible vulnerabilities such as exposure of sensitive information (e.g., API keys, secrets, passwords), or security concerns like SQL injection, XSS, CSRF, and others ? Answer 'No' (without explaining why) if there are no possible issues. If there are security concerns or issues, start your answer with a short header, such as: 'Sensitive information exposure: ...', 'SQL injection: ...' etc. Explain your answer. Be specific and give examples if possible"
+        "In Brazilian Portuguese (pt-BR), explain whether this PR code introduces possible vulnerabilities such as exposure of sensitive information (e.g., API keys, secrets, passwords), or security concerns like SQL injection, XSS, CSRF, and others. Answer 'Nao' (without explaining why) if there are no possible issues. If there are security concerns or issues, start your answer with a short header, such as: 'Exposicao de informacoes sensiveis: ...', 'SQL injection: ...' etc. Explain your answer. Be specific and give examples if possible"
       ),
   });
 
@@ -335,9 +375,12 @@ The comment thread is specific to a line or multiple lines of code in a specific
 
 In your response, return the exact text of your comment, in markdown, starting by mentioning the @user who made the comment. Your response will be used as a comment on the PR, so make sure it's easy to understand and actionable.
 
+Write your response in Brazilian Portuguese (pt-BR). Keep code identifiers, file paths, and snippets unchanged.
+CRITICAL LANGUAGE RULE: If your drafted response is in English, rewrite it to pt-BR before returning.
+
 Comments from @presubmit are yours.
 
-IMPORTANT: Do not respond with generic comments like "Thanks for the PR!" or "LGTM" or "Let me know if you need any help". If the input comment is not actionable, return an empty string. Do not offer to help unless asked.
+IMPORTANT: Do not respond with generic comments like "Thanks for the PR!" or "Let me know if you need any help". If the input comment is not actionable, return an empty string. Do not offer to help unless asked.
 `;
 
   const startLine =
@@ -366,13 +409,15 @@ ${commentThread.comments
 <Comment File Diff>
 ${generateFileCodeDiff(commentFileDiff)}
 </Comment File Diff>
+
+Return your response in Brazilian Portuguese (pt-BR), mentioning the user at the beginning.
 `;
 
   const schema = z.object({
     response_comment: z
       .string()
       .describe(
-        "Your response to the comment in markdown format, starting by mentioning the user"
+        "Your response in Brazilian Portuguese (pt-BR) to the comment in markdown format, starting by mentioning the user"
       ),
     action_requested: z
       .boolean()
