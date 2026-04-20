@@ -72,10 +72,17 @@ export async function handlePullRequestComment() {
   }
 
   // Run prompt
-  const response = await runReviewCommentPrompt({
-    commentThread,
-    commentFileDiff,
-  });
+  let response;
+  try {
+    response = await runReviewCommentPrompt({
+      commentThread,
+      commentFileDiff,
+    });
+  } catch (error) {
+    warning(`error generating response for comment thread: ${error}`);
+    warning("skipping comment reply to avoid failing the workflow");
+    return;
+  }
 
   // Submit response if action requested
   if (!response.action_requested || !response.response_comment.length) {

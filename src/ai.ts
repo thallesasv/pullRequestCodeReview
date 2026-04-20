@@ -1,6 +1,7 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
+import { warning } from "@actions/core";
 import { z } from "zod";
 import config from "./config";
 import { AISDKProvider } from "./providers/ai-sdk";
@@ -244,6 +245,15 @@ type ModelConfig = {
   temperature?: number;
 };
 
+function isSchemaValidationError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+
+  const text = `${error.name} ${error.message}`;
+  return /TypeValidationError|AI_TypeValidationError|NoObjectGeneratedError/i.test(
+    text
+  );
+}
+
 export async function runPrompt({
   prompt,
   systemPrompt,
@@ -287,11 +297,29 @@ export async function runPrompt({
   // Get the appropriate provider for this model
   const provider = AIProviderFactory.getProvider(providerType, modelConfig);
 
-  // Run the inference using the provider
-  return await provider.runInference({
+  const inferenceConfig = {
     prompt,
     temperature: modelConfig.temperature,
     system: systemPrompt,
     schema,
-  });
+  };
+
+  try {
+    // Run the inference using the provider
+    return await provider.runInference(inferenceConfig);
+  } catch (error) {
+    if (!isSchemaValidationError(error)) {
+      throw error;
+    }
+
+    warning(
+      "LLM output failed schema validation. Retrying once with stricter JSON formatting instructions."
+    );
+
+    return await provider.runInference({
+      ...inferenceConfig,
+      system: `${systemPrompt ?? ""}\n\nReturn only a strict JSON object that matches the schema exactly. Do not include markdown or code fences.`,
+      prompt: `${prompt}\n\nFORMAT RULES:\n- Return only valid JSON object content.\n- Do not include explanations, markdown, or code blocks.\n- Ensure every required field is present and with the correct type.`,
+    });
+  }
 }
