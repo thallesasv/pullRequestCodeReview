@@ -180,6 +180,9 @@ __new hunk__
 - Do not return comments that are even slightly similar to other existing comments for the same hunk diffs.
 - If you cannot find any actionable comments, return an empty array.
 - VERY IMPORTANT: Keep in mind you're only seeing part of the code, and the code might be incomplete. Do not make assumptions about the code outside the diff.
+- Write all natural language review text in Brazilian Portuguese (pt-BR), including 'comments[].header', 'comments[].content', and 'review.security_concerns'.
+- Keep code identifiers, method names, file paths, and code snippets exactly as they appear in the diff.
+- Keep 'comments[].label' in English.
 
 ${config.styleGuideRules && config.styleGuideRules.length > 0
       ? `Guidelines for the review, such as style guides, conventions, or best practices, violating the following guidelines should result in a critical comment:
@@ -263,7 +266,7 @@ ${pr.files.map((file) => generateFileCodeDiff(file)).join("\n\n")}
     label: z
       .string()
       .describe(
-        "A single, descriptive label that best characterizes the suggestion type. Possible labels include 'security', 'possible bug', 'possible issue', 'performance', 'enhancement', 'best practice', 'maintainability', 'readability'. Other relevant labels are also acceptable."
+        "A single, descriptive label in English that best characterizes the suggestion type. Possible labels include 'security', 'possible bug', 'possible issue', 'performance', 'enhancement', 'best practice', 'maintainability', 'readability', and 'typo'. Other relevant English labels are also acceptable."
       ),
     critical: z
       .boolean()
@@ -334,6 +337,8 @@ export async function runReviewCommentPrompt({
 The comment thread is specific to a line or multiple lines of code in a specific file. Keep that in mind when writing your response, but do not assume the code is complete or correct. Also, the comment might request you to suggest some changes or improvements outside the code snippet, so judge accordingly.
 
 In your response, return the exact text of your comment, in markdown, starting by mentioning the @user who made the comment. Your response will be used as a comment on the PR, so make sure it's easy to understand and actionable.
+
+Write your response in Brazilian Portuguese (pt-BR). Keep code identifiers, file paths, and snippets unchanged.
 
 Comments from @presubmit are yours.
 
