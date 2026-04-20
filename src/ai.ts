@@ -315,11 +315,19 @@ export async function runPrompt({
     warning(
       "LLM output failed schema validation. Retrying once with stricter JSON formatting instructions."
     );
+    warning(`Validation error details: ${error instanceof Error ? error.message : String(error)}`);
 
-    return await provider.runInference({
-      ...inferenceConfig,
-      system: `${systemPrompt ?? ""}\n\nReturn only a strict JSON object that matches the schema exactly. Do not include markdown or code fences.`,
-      prompt: `${prompt}\n\nFORMAT RULES:\n- Return only valid JSON object content.\n- Do not include explanations, markdown, or code blocks.\n- Ensure every required field is present and with the correct type.`,
-    });
+    try {
+      return await provider.runInference({
+        ...inferenceConfig,
+        system: `${systemPrompt ?? ""}\n\nIMPORTANT: You MUST return a valid JSON object that strictly matches the required schema. Do not include markdown, code fences, or any explanations. Only return the JSON object.`,
+        prompt: `${prompt}\n\nRETURN ONLY A VALID JSON OBJECT. No markdown. No code fences. No extra text. JSON ONLY.`,
+      });
+    } catch (retryError) {
+      warning(
+        `Retry also failed: ${retryError instanceof Error ? retryError.message : String(retryError)}`
+      );
+      throw retryError;
+    }
   }
 }

@@ -220,6 +220,9 @@ ${config.styleGuideRules}`
     ]
 }
 </EXAMPLE>
+
+FINAL CRITICAL INSTRUCTION:
+Your response MUST be ONLY a valid JSON object. Do not include any text before or after the JSON. Do not use markdown code fences. Do not add explanations. Return ONLY the JSON object that matches the schema shown above.
 `;
 
 
@@ -240,7 +243,34 @@ ${pr.prSummary}
 ${pr.files.map((file) => generateFileCodeDiff(file)).join("\n\n")}
 </PR File Diffs>
 
-Return the JSON with all natural language fields in Brazilian Portuguese (pt-BR). Keep 'label' in English.
+RESPONSE FORMAT:
+Return ONLY a valid JSON object with this exact structure:
+{
+  "review": {
+    "estimated_effort_to_review": <number 1-5>,
+    "score": <number 0-100>,
+    "has_relevant_tests": <boolean>,
+    "security_concerns": "<string in Portuguese (pt-BR)>"
+  },
+  "comments": [
+    {
+      "file": "<filename>",
+      "start_line": <number>,
+      "end_line": <number>,
+      "highlighted_code": "<code snippet>",
+      "header": "<single sentence in Portuguese>",
+      "content": "<detailed explanation in Portuguese>",
+      "label": "<English label>",
+      "critical": <boolean>
+    }
+  ]
+}
+
+CRITICAL RULES:
+- Return ONLY the JSON object, no markdown, no code fences, no explanations
+- All natural language fields (header, content, security_concerns) MUST be in Brazilian Portuguese (pt-BR)
+- Keep label in English
+- If no issues found, return empty comments array: "comments": []
 `;
 
   const commentSchema = z.object({
@@ -350,7 +380,7 @@ CRITICAL LANGUAGE RULE: If your drafted response is in English, rewrite it to pt
 
 Comments from @presubmit are yours.
 
-IMPORTANT: Do not respond with generic comments like "Thanks for the PR!" or "LGTM" or "Let me know if you need any help". If the input comment is not actionable, return an empty string. Do not offer to help unless asked.
+IMPORTANT: Do not respond with generic comments like "Thanks for the PR!" or "Let me know if you need any help". If the input comment is not actionable, return an empty string. Do not offer to help unless asked.
 `;
 
   const startLine =
