@@ -164,12 +164,14 @@ export async function handlePullRequest() {
   });
   info(`generated pull request summary: ${summary.title}`);
 
-  // Update PR title if @presubmitai is mentioned in the title
+  // Update PR title if @prreview is mentioned in the title
   if (
+    pull_request.title.includes("@prreview") ||
+    pull_request.title.includes("@prreviewai") ||
     pull_request.title.includes("@presubmitai") ||
     pull_request.title.includes("@presubmit")
   ) {
-    info(`title contains mention of presubmit.ai, so generating a new title`);
+    info(`title contains mention of PR Review AI, so generating a new title`);
     if (IS_DRY_RUN) {
       info(`DRY-RUN: would update PR title to: ${summary.title}`);
     } else {
@@ -367,6 +369,14 @@ async function submitReview(
 
 function shouldIgnorePullRequest(pull_request: { body?: string }) {
   const ignorePhrases = [
+    "@prreview ignore",
+    "@prreview: ignore",
+    "@prreview skip",
+    "@prreview: skip",
+    "@prreviewai ignore",
+    "@prreviewai: ignore",
+    "@prreviewai skip",
+    "@prreviewai: skip",
     "@presubmit ignore",
     "@presubmit: ignore",
     "@presubmit skip",

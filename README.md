@@ -1,20 +1,19 @@
 <div align="center">
   <h1>
-    Presubmit - AI Code Reviewer
+    PR Review AI
   </h1>
   
   <p><em>Revisões de PR inteligentes, instantâneas e com consciência de contexto</em></p>
 
-[![GitHub Stars](https://img.shields.io/github/stars/presubmit/ai-reviewer?style=social)](https://github.com/presubmit/ai-reviewer/stargazers) &nbsp;
-[![GitHub last commit](https://img.shields.io/github/last-commit/presubmit/ai-reviewer)](https://github.com/presubmit/ai-reviewer/commits) &nbsp;
-[![GitHub License](https://img.shields.io/github/license/presubmit/ai-reviewer?color=yellow)](https://github.com/presubmit/ai-reviewer/blob/main/LICENSE) &nbsp;
-[![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/presubmitai?style=social)](https://x.com/intent/follow?screen_name=presubmitai)
+[![GitHub Stars](https://img.shields.io/github/stars/thallesasv/pullRequestCodeReview?style=social)](https://github.com/thallesasv/pullRequestCodeReview/stargazers) &nbsp;
+[![GitHub last commit](https://img.shields.io/github/last-commit/thallesasv/pullRequestCodeReview)](https://github.com/thallesasv/pullRequestCodeReview/commits) &nbsp;
+[![GitHub License](https://img.shields.io/github/license/thallesasv/pullRequestCodeReview?color=yellow)](https://github.com/thallesasv/pullRequestCodeReview/blob/main/LICENSE) &nbsp;
 
 </div>
 
 <br/>
 
-Otimize seu processo de revisão de código com o AI Code Reviewer da Presubmit, que detecta bugs, sugere melhorias e fornece um resumo relevante, tudo isso antes da primeira análise humana.
+Otimize seu processo de revisão de código com o PR Review AI, que detecta bugs, sugere melhorias e fornece um resumo relevante, tudo isso antes da primeira análise humana.
 
 - 🔍 **Análise instantânea e aprofundada de PRs**: Detecta bugs, falhas de segurança e oportunidades de otimização em tempo real
 - 🎯 **Foque no que importa**: Deixe a IA cuidar do básico enquanto pessoas focam em arquitetura e lógica complexa
@@ -24,19 +23,19 @@ Otimize seu processo de revisão de código com o AI Code Reviewer da Presubmit,
 
 <br/>
 
-> 🤝 **Observação**: O Presubmit foi criado para complementar revisores humanos, não para substituí-los. Ele ajuda a identificar problemas de segurança e bugs logo no início, além de fornecer contexto sobre a mudança como um todo, tornando a revisão humana mais eficiente.
+> 🤝 **Observação**: O PR Review AI foi criado para complementar revisores humanos, não para substituí-los. Ele ajuda a identificar problemas de segurança e bugs logo no início, além de fornecer contexto sobre a mudança como um todo, tornando a revisão humana mais eficiente.
 
 <br/>
 
 ## Veja em ação
 
-> 💡 [Veja um exemplo completo de revisão de PR](https://github.com/presubmit/ebank-backend/pull/13)
+> 💡 Veja um exemplo completo de revisão de PR nas imagens abaixo.
 
 A análise automatizada detecta problemas potenciais e fornece insights acionáveis:
 
 <div align="left">
-  <a href="https://github.com/presubmit/ebank-backend/pull/13">
-    <img src="https://github.com/presubmit/ai-reviewer/blob/main/assets/review_example_3.png?raw=true" alt="Exemplo de revisão de código com IA" width="650"/>
+  <a href="https://github.com/thallesasv/pullRequestCodeReview/pulls">
+    <img src="assets/review_example_3.png" alt="Exemplo de revisão de código com IA" width="650"/>
   </a>
 </div>
 
@@ -45,8 +44,8 @@ A análise automatizada detecta problemas potenciais e fornece insights acionáv
 Discussões interativas ajudam a esclarecer detalhes de implementação:
 
 <div align="left">
-  <a href="https://github.com/presubmit/ebank-backend/pull/13">
-    <img src="https://github.com/presubmit/ai-reviewer/blob/main/assets/comment_example.png?raw=true" alt="Exemplo de thread de comentários da IA" width="650"/>
+  <a href="https://github.com/thallesasv/pullRequestCodeReview/pulls">
+    <img src="assets/comment_example.png" alt="Exemplo de thread de comentários da IA" width="650"/>
   </a>
 </div>
 
@@ -67,10 +66,10 @@ Discussões interativas ajudam a esclarecer detalhes de implementação:
 
 ### Passo 2: Crie o workflow do GitHub
 
-Adicione esta GitHub Action ao seu repositório criando `.github/workflows/presubmit.yml`:
+Adicione esta GitHub Action ao seu repositório criando `.github/workflows/pr-review-ai.yml`:
 
 ```yaml
-name: Presubmit.ai
+name: PR Review AI
 
 permissions:
   contents: read
@@ -93,7 +92,7 @@ jobs:
             echo "Error: LLM_API_KEY secret is not configured"
             exit 1
           fi
-      - uses: presubmit/ai-reviewer@latest
+      - uses: thallesasv/pullRequestCodeReview@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
@@ -104,7 +103,7 @@ A action requer:
 
 - `GITHUB_TOKEN`: Fornecido automaticamente pelo GitHub Actions
 - `LLM_API_KEY`: Sua chave de API (adicionada no passo 1)
-- `LLM_MODEL`: Qual modelo LLM usar. Garanta que o modelo seja [compatível](https://github.com/presubmit/ai-reviewer/blob/main/src/ai.ts) e corresponda ao `LLM_API_KEY`.
+- `LLM_MODEL`: Qual modelo LLM usar. Garanta que o modelo seja [compatível](./src/ai.ts) e corresponda ao `LLM_API_KEY`.
 - `LLM_BASE_URL` (opcional): URL base para provedores compatíveis com OpenAI ao usar `LLM_PROVIDER=ai-sdk` (ex.: `https://openrouter.ai/api/v1` para OpenRouter). Não se aplica ao provedor `sap-ai-sdk`.
 
 ### Usando provedores compatíveis com OpenAI
@@ -112,7 +111,7 @@ A action requer:
 Para usar OpenRouter ou outros provedores compatíveis com OpenAI com o provedor `ai-sdk`, adicione a variável de ambiente `LLM_BASE_URL`:
 
 ```yaml
-      - uses: presubmit/ai-reviewer@latest
+      - uses: thallesasv/pullRequestCodeReview@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
@@ -128,7 +127,7 @@ Para usar OpenRouter ou outros provedores compatíveis com OpenAI com o provedor
 Se você usa GitHub Enterprise Server, pode configurar a action para funcionar com sua instância adicionando estas variáveis de ambiente:
 
 ```yaml
-      - uses: presubmit/ai-reviewer@latest
+      - uses: thallesasv/pullRequestCodeReview@main
         env:
           GITHUB_API_URL: "https://github.example.com/api/v3"
           GITHUB_SERVER_URL: "https://github.example.com"
@@ -137,7 +136,7 @@ Se você usa GitHub Enterprise Server, pode configurar a action para funcionar c
 Você também pode configurar essas opções usando parâmetros de entrada:
 
 ```yaml
-      - uses: presubmit/ai-reviewer@latest
+      - uses: thallesasv/pullRequestCodeReview@main
         with:
           github_api_url: "https://github.example.com/api/v3"
           github_server_url: "https://github.example.com"
@@ -167,8 +166,8 @@ Certifique-se de substituir `https://github.example.com` pela URL real do seu Gi
 
 ### ⚙️ Configurável
 
-- Mencione `@presubmit` no título do PR para geração automática
-- Desative revisões com o comentário `@presubmit ignore`
+- Mencione `@prreview` no título do PR para geração automática
+- Desative revisões com o comentário `@prreview ignore`
 - Profundidade da revisão e áreas de foco configuráveis
 - Regras e preferências personalizáveis
 
@@ -238,15 +237,14 @@ GITHUB_REPOSITORY=myorg/myrepo
 - Usa automaticamente seu `gh auth token`
 - O modo `--dry-run` ignora todas as escritas na API do GitHub e registra o que seria publicado
 - Sem `--dry-run`, a revisão será publicada no GitHub
-- O padrão é o repositório da variável `GITHUB_REPOSITORY` ou `presubmit/ai-reviewer`
+- O padrão é o repositório da variável `GITHUB_REPOSITORY` ou `thallesasv/pullRequestCodeReview`
 
 <br/>
 
 ## Mostre seu apoio! ⭐
 
-Se você considera o Presubmit útil para melhorar o processo de revisão:
+Se você considera o PR Review AI útil para melhorar o processo de revisão:
 
 - **Dê uma estrela neste repositório** para mostrar seu apoio e ajudar outras pessoas a descobri-lo
-- Compartilhe sua experiência criando uma [GitHub Issue](https://github.com/presubmit/ai-reviewer/issues)
-- Siga-me no [X/Twitter](https://x.com/bdstanga) para atualizações
+- Compartilhe sua experiência criando uma [GitHub Issue](https://github.com/thallesasv/pullRequestCodeReview/issues)
 - Considere [contribuir](CONTRIBUTING.md) para deixá-lo ainda melhor

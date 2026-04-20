@@ -1,4 +1,4 @@
-name: Presubmit.ai
+name: PR Review AI
 
 permissions:
   contents: read

@@ -160,10 +160,10 @@ __old hunk__
 -old code line2 removed in the PR
  unchanged code line3
  __existing_comment_thread__
- presubmitai: This is a comment on the code
+ prreview: This is a comment on the code
  user2: This is a reply to the comment above
  __existing_comment_thread__
- presubmitai: This is a comment on some other parts of the code
+ prreview: This is a comment on some other parts of the code
  user2: This is a reply to the above comment
 
 
@@ -378,7 +378,7 @@ In your response, return the exact text of your comment, in markdown, starting b
 Write your response in Brazilian Portuguese (pt-BR). Keep code identifiers, file paths, and snippets unchanged.
 CRITICAL LANGUAGE RULE: If your drafted response is in English, rewrite it to pt-BR before returning.
 
-Comments from @presubmit are yours.
+Comments from @prreview are yours.
 
 IMPORTANT: Do not respond with generic comments like "Thanks for the PR!" or "Let me know if you need any help". If the input comment is not actionable, return an empty string. Do not offer to help unless asked.
 `;
