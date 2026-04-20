@@ -26,4 +26,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           LLM_PROVIDER: "ai-sdk"
-          LLM_MODEL: "gpt-4o-mini"
+          LLM_MODEL: "claude-sonnet-4-5"
