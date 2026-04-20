@@ -191,7 +191,7 @@ export async function main() {
   review --pr <number> [--owner <owner>] [--repo <repo>] [--dry-run] [--out [path] | -out [path]]
 
 Examples:
-  review --list-prs --owner presubmit --repo ai-reviewer
+  review --list-prs --owner presubmit --repo pullRequestCodeReview
   review --pr 123 --dry-run
   review --pr 123 --dry-run --out review-output.txt
   review --pr 123 --owner myorg --repo myrepo
