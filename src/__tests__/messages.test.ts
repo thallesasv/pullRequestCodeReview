@@ -154,7 +154,7 @@ describe('Messages', () => {
       []
     );
     
-    expect(summary).toContain('LGTM!');
+    expect(summary).toContain('Me avise caso precise de ajuda!');
     expect(summary).toContain('Pontos de Ação (0)');
     expect(summary).toContain('Comentários Ignorados (0)');
     expect(summary).toContain('https://github.com/test-owner/test-repo/commit/');

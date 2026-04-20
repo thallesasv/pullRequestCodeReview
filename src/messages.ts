@@ -160,7 +160,7 @@ export function buildReviewSummary(
 
   let body = "";
   if (actionableComments.length === 0) {
-    body += `✅ **LGTM!**\n\n`;
+    body += `✅ **Me avise caso precise de ajuda!**\n\n`;
   } else {
     body += `🚨 **Pull request precisa de atenção.**\n\n`;
   }
