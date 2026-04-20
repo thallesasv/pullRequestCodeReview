@@ -170,7 +170,7 @@ export async function main() {
   const args = parseArgs(process.argv.slice(2));
   
   // Extract owner/repo from GITHUB_REPOSITORY env or use defaults
-  const defaultRepo = process.env.GITHUB_REPOSITORY || 'presubmit/ai-reviewer';
+  const defaultRepo = process.env.GITHUB_REPOSITORY || 'thallesasv/pullRequestCodeReview';
   const [defaultOwner, defaultRepoName] = defaultRepo.split('/');
   
   const owner = args.owner || defaultOwner;
