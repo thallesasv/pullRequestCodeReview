@@ -1,5 +1,5 @@
 {
-  "name": "pull-request-reviewer",
+  "name": "pr-review-ai",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",

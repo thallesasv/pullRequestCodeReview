@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for your interest in contributing to Presubmit AI Reviewer!
+Thank you for your interest in contributing to PR Review AI!
 
 ## Getting Started
 
@@ -67,10 +67,9 @@ Thank you for your interest in contributing to Presubmit AI Reviewer!
 
 - Open an issue for questions
 - Join our community discussions
-- Reach out on [X/Twitter](https://x.com/bdstanga)
 
 ## License
 
-By contributing to AI PR Reviewer, you agree that your contributions will be licensed under the same license as the project.
+By contributing to PR Review AI, you agree that your contributions will be licensed under the same license as the project.
 
-Thank you for contributing to make AI PR Reviewer better! 🚀
+Thank you for contributing to make PR Review AI better! 🚀
