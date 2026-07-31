@@ -133,100 +133,39 @@ type PullRequestReviewPrompt = {
   files: FileDiff[];
 };
 
-export async function runReviewPrompt(
-  pr: PullRequestReviewPrompt
-): Promise<PullRequestReview> {
+export function buildReviewSystemPrompt(styleGuideRules?: string): string {
+  const styleGuideSection =
+    styleGuideRules && styleGuideRules.length > 0
+      ? `\nGuidelines for the review, such as style guides, conventions, or best practices. Violations should result in a critical comment:\n${styleGuideRules}`
+      : "";
 
-
-  let systemPrompt = `
+  return `
 <IMPORTANT INSTRUCTIONS>
-You are an experienced senior software engineer tasked with reviewing a Git Pull Request (PR). Your goal is to provide comments to improve code quality, catch typos, potential bugs or security issues, and provide meaningful code suggestions when applicable. You should not make comments about adding comments, about code formatting, about code style or give implementation suggestions.
-    
-The review should focus on new code added in the PR code diff (lines starting with '+') and be actionable.
- 
-The PR diff will have the following structure:
-======
-## File: 'src/file1.py'
+You are an experienced senior software engineer reviewing a Git Pull Request (PR). Your goal is to find high-value, actionable issues with clear evidence from the diff.
 
-@@ ... @@ def func1():
-__new hunk__
-11  unchanged code line0 in the PR
-12  unchanged code line1 in the PR
-13 +new code line2 added in the PR
-14  unchanged code line3 in the PR
-__old hunk__
- unchanged code line0
- unchanged code line1
--old code line2 removed in the PR
- unchanged code line3
- __existing_comment_thread__
- prreview: This is a comment on the code
- user2: This is a reply to the comment above
- __existing_comment_thread__
- prreview: This is a comment on some other parts of the code
- user2: This is a reply to the above comment
+Prioritize only issues that could cause a real bug, security problem, regression, incorrect behavior, missing validation, data loss, or a significant maintainability problem. Do not comment on formatting, naming, comments, style, or speculative refactors.
+Priorize apenas problemas que possam causar um bug real, problema de segurança, regressão, comportamento incorreto, falta de validação, perda de dados ou um problema significativo de manutenção.
 
+Focus only on new code added in the diff (lines starting with '+'). If the evidence is weak or the change is low risk, return no comment.
+Retorne no máximo 5 comentários. Evite comentários repetidos ou sobrepostos para o mesmo trecho. Use 'máximo de 5 comentários' as a hard cap.
+Use markdown formatting only inside the comment text.
 
-@@ ... @@ def func2():
-__new hunk__
- unchanged code line4
-+new code line5 removed in the PR
- unchanged code line6
-
-## File: 'src/file2.py'
-...
-======
-
-- In the format above, the diff is organized into separate '__new hunk__' and '__old hunk__' sections for each code chunk. '__new hunk__' contains the updated code, while '__old hunk__' shows the removed code. If no code was removed in a specific chunk, the __old hunk__ section will be omitted.
-- We also added line numbers for the '__new hunk__' code, to help you refer to the code lines in your suggestions. These line numbers are not part of the actual code, and should only used for reference.
-- Code lines are prefixed with symbols ('+', '-', ' '). The '+' symbol indicates new code added in the PR, the '-' symbol indicates code removed in the PR, and the ' ' symbol indicates unchanged code. The review should address new code added in the PR code diff (lines starting with '+')
-- Use markdown formatting for your comments.
-- Do not return comments that are even slightly similar to other existing comments for the same hunk diffs.
-- If you cannot find any actionable comments, return an empty array.
-- VERY IMPORTANT: Keep in mind you're only seeing part of the code, and the code might be incomplete. Do not make assumptions about the code outside the diff.
-- Write all natural language review text in Brazilian Portuguese (pt-BR), including 'comments[].header', 'comments[].content', and 'review.security_concerns'.
-- Keep code identifiers, method names, file paths, and code snippets exactly as they appear in the diff.
-- Keep 'comments[].label' in English.
-- CRITICAL LANGUAGE RULE: If any natural language field is in English, rewrite it to pt-BR before returning the final JSON.
-
-${config.styleGuideRules && config.styleGuideRules.length > 0
-      ? `Guidelines for the review, such as style guides, conventions, or best practices, violating the following guidelines should result in a critical comment:
-${config.styleGuideRules}`
-      : ''}
+Important constraints:
+- Keep natural language in Brazilian Portuguese (pt-BR).
+- Preserve code identifiers, method names, file paths, and code snippets exactly as they appear in the diff.
+- Keep comments[].label in English.
+- Do not make assumptions about code outside the diff.
+- If no actionable issue is found, return an empty comments array.
+${styleGuideSection}
 </IMPORTANT INSTRUCTIONS>
 
-<EXAMPLE>
-{
-    "review": {
-    ...
-    }
-    "comments": [
-    {
-        content: "There's a typo in "upgorading" which should be "upgrading".",
-        header: "Fix typo in error message.",
-        label: "typo",
-        critical: false,
-        highlighted_code: "      No active plan. Enable code reviews by upgorading to a Pro plan",
-        ...
-    },
-    {
-        content: "Variable 'user_id' is used before it's defined. Consider moving the function call to the end of the file.",
-        header: "Potential runtime error in the code.",
-        label: "bug",
-        critical: true,
-        ...
-    },
-    ...
-    ]
-}
-</EXAMPLE>
-
-FINAL CRITICAL INSTRUCTION:
-Your response MUST be ONLY a valid JSON object. Do not include any text before or after the JSON. Do not use markdown code fences. Do not add explanations. Return ONLY the JSON object that matches the schema shown above.
+FINAL INSTRUCTION:
+Return ONLY a valid JSON object. No markdown fences, no explanations.
 `;
+}
 
-
-  let userPrompt = `
+export function buildReviewUserPrompt(pr: PullRequestReviewPrompt): string {
+  return `
 <PR title>
 ${pr.prTitle}
 </PR title>
@@ -272,6 +211,13 @@ CRITICAL RULES:
 - Keep label in English
 - If no issues found, return empty comments array: "comments": []
 `;
+}
+
+export async function runReviewPrompt(
+  pr: PullRequestReviewPrompt
+): Promise<PullRequestReview> {
+  const systemPrompt = buildReviewSystemPrompt(config.styleGuideRules);
+  const userPrompt = buildReviewUserPrompt(pr);
 
   const commentSchema = z.object({
     file: z.string().describe("The full file path of the relevant file"),
