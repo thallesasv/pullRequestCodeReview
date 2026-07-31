@@ -104,7 +104,7 @@ A action requer:
 - `GITHUB_TOKEN`: Fornecido automaticamente pelo GitHub Actions
 - `LLM_API_KEY`: Sua chave de API (adicionada no passo 1)
 - `LLM_MODEL`: Qual modelo LLM usar. Garanta que o modelo seja [compatível](./src/ai.ts) e corresponda ao `LLM_API_KEY`.
-- `LLM_BASE_URL` (opcional): URL base para provedores compatíveis com OpenAI ao usar `LLM_PROVIDER=ai-sdk` (ex.: `https://openrouter.ai/api/v1` para OpenRouter). Não se aplica ao provedor `sap-ai-sdk`.
+- `LLM_BASE_URL` (opcional): URL base para provedores compatíveis com OpenAI ao usar `LLM_PROVIDER=ai-sdk` (ex.: `https://openrouter.ai/api/v1` para OpenRouter).
 
 ### Usando provedores compatíveis com OpenAI
 
@@ -120,7 +120,7 @@ Para usar OpenRouter ou outros provedores compatíveis com OpenAI com o provedor
           LLM_BASE_URL: "https://openrouter.ai/api/v1"
 ```
 
-**Observação**: Esta configuração funciona apenas com `LLM_PROVIDER=ai-sdk`. Ela suporta qualquer API compatível com OpenAI, incluindo OpenRouter, Anyscale, Together AI e outras. O provedor `sap-ai-sdk` usa sua própria configuração `SAP_AI_CORE_BASE_URL`.
+**Observação**: Esta configuração funciona apenas com `LLM_PROVIDER=ai-sdk`. Ela suporta qualquer API compatível com OpenAI, incluindo OpenRouter, Anyscale, Together AI e outras.
 
 ### Suporte ao GitHub Enterprise Server
 
