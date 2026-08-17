@@ -330,7 +330,23 @@ As respostas do LLM são validadas com esquemas Zod.
 
 Se a primeira resposta falhar na validação, o sistema tenta novamente com instruções mais rígidas para JSON puro. Essa estratégia reduz falhas ocasionais de formatação e melhora a confiabilidade do pipeline.
 
-### 11.3. Provedores concretos
+### 11.3. Prompt para revisão automatizada de código
+
+O prompt utilizado na etapa de revisão técnica, implementado em [src/prompts.ts](src/prompts.ts), constitui o principal mecanismo de instrução do sistema para a análise automatizada de Pull Requests. Ele é estruturado em duas camadas: uma instrução de sistema, responsável por definir o papel do modelo como revisor técnico sênior, e uma instrução de usuário, que fornece o contexto do PR em questão, incluindo título, descrição, resumo e diffs relevantes.
+
+A primeira parte do prompt orienta o modelo a agir como um analista de software experiente e a priorizar apenas problemas que tenham evidência concreta no trecho alterado. Essa abordagem implementa uma política de revisão centrada em risco: o sistema é guiado a identificar falhas que possam resultar em regressão funcional, problema de segurança, ausência de validação ou degradação de manutenção, em vez de comentar sobre aspectos cosméticos ou subjetivos. Essa decisão é relevante para a qualidade da saída, pois reduz ruído e concentra a análise em elementos que efetivamente afetam a confiabilidade do código.
+
+Além disso, o prompt exige que a análise seja restrita a trechos novos do diff, principalmente linhas marcadas com prefixo `+`, evitando inferências arbitrárias sobre o restante do sistema. Essa restrição é importante para manter a coerência entre a evidência observável e a recomendação do modelo. Em outras palavras, o sistema não produz julgamento baseado em suposições externas ao contexto do PR, o que aumenta a confiabilidade da revisão e reduz a chance de comentários falsos ou excessivamente genéricos.
+
+Outro ponto relevante está na imposição de regras de linguagem e formatação. O modelo é instruído a responder em português do Brasil, preservando nomes de variáveis, arquivos e trechos de código originais, enquanto os rótulos de categoria permanecem em inglês para padronização interna da aplicação. Esse desenho facilita a integração entre a análise semântica e a publicação de comentários no GitHub, ao mesmo tempo em que preserva legibilidade para revisores humanos e compatibilidade com o processamento estruturado do sistema.
+
+A saída também é formalizada. O retorno esperado não é texto livre, mas um objeto JSON, com campos como revisão geral, avaliação de esforço, presença de testes relevantes e comentários inline. Essa escolha de projeto é relevante para o escopo da solução, porque transforma a IA em um componente de processamento de dados estruturados e não em um gerador de texto aberto. A validação da resposta reduz inconsistências de formato, aumenta previsibilidade e facilita a integração com o pipeline de publicação do PR.
+
+Além disso, o prompt limita a quantidade máxima de comentários a cinco itens, o que introduz critérios de priorização e evita sobrecarga informacional. Esse mecanismo reforça a ideia de que a ferramenta não pretende substituir completamente a revisão humana, mas sim apoiar a triagem inicial de alterações de maior impacto. Nesse sentido, a IA atua como filtro de atenção: aponta riscos relevantes, sugere melhorias concretas e deixa a decisão final e contextualizada para o revisor humano.
+
+Do ponto de vista do TCC, esse prompt representa uma peça relevante da arquitetura do projeto porque encapsula a estratégia de revisão automatizada. Ele combina três elementos: (i) a definição do papel do agente de IA, (ii) a restrição do escopo de análise à evidência disponível no diff e (iii) a exigência de saída estruturada e validável. A combinação desses elementos transforma a revisão de código em um processo parcialmente automatizado, orientado por critérios técnicos e por regras explícitas de confiabilidade.
+
+### 11.4. Provedores concretos
 
 As implementações em [src/providers/ai-sdk.ts](src/providers/ai-sdk.ts) e [src/providers/sapaicore.ts](src/providers/sapaicore.ts) fazem o trabalho real de chamada ao modelo.
 
