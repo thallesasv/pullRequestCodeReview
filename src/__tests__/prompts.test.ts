@@ -5,7 +5,8 @@ describe('review prompt builders', () => {
     const systemPrompt = buildReviewSystemPrompt('Use camelCase.');
 
     expect(systemPrompt).toContain('Priorize apenas problemas');
-    expect(systemPrompt).toContain('máximo de 5 comentários');
+    expect(systemPrompt).toContain('evidência direta no trecho alterado');
+    expect(systemPrompt).toContain('no máximo 5 comentários');
     expect(systemPrompt).toContain('Use camelCase.');
   });
 
