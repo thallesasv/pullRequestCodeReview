@@ -47,6 +47,14 @@ const LLM_MODELS: Record<AIProviderType, ModelConfig[]> = {
       name: "claude-sonnet-4-5",
       createAi: createAnthropic,
     },
+    {
+      name: "claude-sonnet-4-6",
+      createAi: createAnthropic,
+    },
+    {
+      name: "claude-sonnet-5",
+      createAi: createAnthropic,
+    },
     // OpenAI
     {
       name: "gpt-5",
