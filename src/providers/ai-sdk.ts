@@ -22,6 +22,8 @@ export class AISDKProvider implements AIProvider {
       apiKey: config.llmApiKey,
       ...(config.llmBaseUrl && { baseURL: config.llmBaseUrl }),
     });
+    console.log("MODEL: ", this.modelName);
+    console.log("TEMPERATURE RECEIVED: ", temperature);
     const { object, usage } = await generateObject({
       model: llm(this.modelName),
       prompt,
