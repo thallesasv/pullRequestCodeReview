@@ -25,7 +25,7 @@ export class AISDKProvider implements AIProvider {
     const { object, usage } = await generateObject({
       model: llm(this.modelName),
       prompt,
-      temperature: temperature || 0,
+      ...(temperature !== undefined ? { temperature } : {}),
       system,
       schema,
     });

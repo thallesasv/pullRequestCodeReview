@@ -428,7 +428,9 @@ export async function runPrompt({
 
   const inferenceConfig = {
     prompt,
-    temperature: modelConfig.temperature,
+    ...(modelConfig.temperature !== undefined
+      ? { temperature: modelConfig.temperature }
+      : {}),
     system: systemPrompt,
     schema,
   };
