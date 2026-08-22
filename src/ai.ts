@@ -219,7 +219,7 @@ export type InferenceConfig = {
   prompt: string;
   temperature?: number;
   system?: string;
-  schema: z.ZodObject<any, any>;
+  schema: z.ZodTypeAny;
 };
 
 export interface AIProvider {
@@ -253,6 +253,12 @@ type ModelConfig = {
   temperature?: number;
 };
 
+const MAX_LOG_STRING_LENGTH = 1200;
+const MAX_LOG_ARRAY_ITEMS = 20;
+const MAX_LOG_OBJECT_KEYS = 30;
+const MAX_LOG_DEPTH = 4;
+const SENSITIVE_KEY_REGEX = /(api[_-]?key|token|secret|password|authorization|cookie)/i;
+
 function isSchemaValidationError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
 
@@ -262,6 +268,121 @@ function isSchemaValidationError(error: unknown): boolean {
   );
 }
 
+function safeParseJsonString(value: string): unknown | null {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
+function extractJsonFromText(text: string): unknown | null {
+  const valueIndex = text.indexOf("Value:");
+  const source = valueIndex >= 0 ? text.slice(valueIndex + "Value:".length) : text;
+  const firstBrace = source.indexOf("{");
+  const lastBrace = source.lastIndexOf("}");
+  if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
+    return null;
+  }
+
+  return safeParseJsonString(source.slice(firstBrace, lastBrace + 1).trim());
+}
+
+function sanitizeForLog(value: unknown, depth = 0): unknown {
+  if (value == null) return value;
+  if (depth > MAX_LOG_DEPTH) return "[TRUNCATED_DEPTH]";
+
+  if (typeof value === "string") {
+    if (value.length <= MAX_LOG_STRING_LENGTH) return value;
+    return `${value.slice(0, MAX_LOG_STRING_LENGTH)}...[TRUNCATED]`;
+  }
+
+  if (typeof value === "number" || typeof value === "boolean") {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    const limited = value.slice(0, MAX_LOG_ARRAY_ITEMS).map((item) => sanitizeForLog(item, depth + 1));
+    if (value.length > MAX_LOG_ARRAY_ITEMS) {
+      limited.push(`[TRUNCATED_ITEMS:${value.length - MAX_LOG_ARRAY_ITEMS}]`);
+    }
+    return limited;
+  }
+
+  if (typeof value === "object") {
+    const result: Record<string, unknown> = {};
+    const entries = Object.entries(value as Record<string, unknown>).slice(0, MAX_LOG_OBJECT_KEYS);
+
+    for (const [key, nested] of entries) {
+      if (SENSITIVE_KEY_REGEX.test(key)) {
+        result[key] = "[REDACTED]";
+      } else {
+        result[key] = sanitizeForLog(nested, depth + 1);
+      }
+    }
+
+    const totalKeys = Object.keys(value as Record<string, unknown>).length;
+    if (totalKeys > MAX_LOG_OBJECT_KEYS) {
+      result.__truncated_keys__ = totalKeys - MAX_LOG_OBJECT_KEYS;
+    }
+
+    return result;
+  }
+
+  return String(value);
+}
+
+function extractSchemaFailurePayload(error: unknown): unknown | null {
+  if (error instanceof Error) {
+    const parsedFromMessage = extractJsonFromText(error.message);
+    if (parsedFromMessage) {
+      return parsedFromMessage;
+    }
+  }
+
+  if (!error || typeof error !== "object") {
+    return null;
+  }
+
+  const record = error as Record<string, unknown>;
+  const candidates = [
+    "value",
+    "payload",
+    "object",
+    "response",
+    "body",
+    "data",
+    "result",
+    "rawResponse",
+    "rawText",
+  ];
+
+  for (const key of candidates) {
+    if (record[key] != null) {
+      return record[key];
+    }
+  }
+
+  if (record.cause && typeof record.cause === "object") {
+    return extractSchemaFailurePayload(record.cause);
+  }
+
+  return null;
+}
+
+function buildSchemaFailurePayloadPreview(error: unknown): string | null {
+  const payload = extractSchemaFailurePayload(error);
+  if (payload == null) {
+    return null;
+  }
+
+  try {
+    return JSON.stringify(sanitizeForLog(payload));
+  } catch {
+    return null;
+  }
+}
+
 export async function runPrompt({
   prompt,
   systemPrompt,
@@ -269,7 +390,7 @@ export async function runPrompt({
 }: {
   prompt: string;
   systemPrompt?: string;
-  schema: z.ZodObject<any, any>;
+  schema: z.ZodTypeAny;
 }) {
   if (
     !Object.values(AIProviderType).includes(
@@ -335,6 +456,10 @@ export async function runPrompt({
       warning(
         `Retry also failed: ${retryError instanceof Error ? retryError.message : String(retryError)}`
       );
+      const payloadPreview = buildSchemaFailurePayloadPreview(retryError);
+      if (payloadPreview) {
+        warning(`Schema validation payload preview (sanitized): ${payloadPreview}`);
+      }
       throw retryError;
     }
   }
