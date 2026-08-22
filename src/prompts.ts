@@ -296,7 +296,7 @@ export async function runReviewPrompt(
       ),
   });
 
-  let schema = z.object({
+  const baseReviewSchema = z.object({
     review: reviewSchema.describe("The full review of the PR"),
     comments: z
       .array(commentSchema)
@@ -304,6 +304,34 @@ export async function runReviewPrompt(
         "Comments about possible bugs, security concerns, code quality, typos or regressions introduced in this PR."
       ),
   });
+
+  const schema = z.preprocess((value) => {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      return value;
+    }
+
+    const record = value as Record<string, unknown>;
+    if ("review" in record && "comments" in record) {
+      return record;
+    }
+
+    // Some models/providers return the payload wrapped in an extra key
+    // such as "$parameter" or "$PARAMETER_NAME".
+    for (const nestedValue of Object.values(record)) {
+      if (
+        nestedValue &&
+        typeof nestedValue === "object" &&
+        !Array.isArray(nestedValue)
+      ) {
+        const nested = nestedValue as Record<string, unknown>;
+        if ("review" in nested && "comments" in nested) {
+          return nested;
+        }
+      }
+    }
+
+    return value;
+  }, baseReviewSchema);
 
   return (await runPrompt({
     prompt: userPrompt,
