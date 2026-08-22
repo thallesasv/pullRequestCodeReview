@@ -160,6 +160,13 @@ Ele trata dois tipos de comentários:
 - Comentários soltos por arquivo, postados individualmente.
 - Comentários inline associados a linhas específicas, agrupados em uma review única quando possível.
 
+No fluxo inline, a publicação também aplica uma etapa de curadoria para equilibrar cobertura e ruído:
+
+- Deduplicação de achados equivalentes no mesmo trecho.
+- Ranqueamento por prioridade (ex.: segurança, bug, validação, regressão, manutenibilidade).
+- Seleção com limite adaptativo, mantendo comentários críticos e incluindo também comentários não críticos de alto valor.
+- Cap global de comentários inline por execução para evitar excesso.
+
 Se a criação em lote falhar, o código faz fallback e envia os comentários um a um. Essa abordagem aumenta a robustez contra limitações ou erros pontuais da API do GitHub.
 
 ### 4.9. Modo dry-run
@@ -340,7 +347,9 @@ Uma melhoria aplicada ao prompt foi a introdução de critérios explícitos de 
 
 Além disso, o prompt passou a exigir uma verificação prévia antes de publicar cada comentário: o modelo deve responder, de forma implícita, se há um problema concreto, se o impacto é real e visível ao usuário e se a correção é acionável e específica. Quando qualquer uma dessas condições não é atendida, o comentário é descartado. Essa estratégia aumenta a qualidade da revisão porque evita a publicação de alertas fracos, redundantes ou sem fundamento técnico.
 
-Outro ajuste importante foi a limitação da revisão a um máximo de cinco comentários e a priorização de achados de alto valor sobre múltiplos comentários fracos sobre o mesmo tema. Essa política reduz ruído informacional e torna a saída mais útil para o autor do PR e para o revisor humano. Em outras palavras, a ferramenta adota uma lógica de “review de impacto”, em vez de “review exaustivo”.
+Outro ajuste importante foi a implementação de uma política adaptativa de volume. O prompt agora orienta a retornar de 0 a 12 comentários, com faixa típica de 2 a 8 quando houver problemas reais, e de 0 a 3 para mudanças pequenas ou de baixo risco. Essa política reduz ruído informacional sem subnotificar achados relevantes.
+
+De forma complementar, a seleção final de comentários na etapa de publicação também foi incrementada: em vez de publicar apenas comentários `critical` (ou casos muito específicos), o sistema passou a ranquear e selecionar comentários de maior impacto, incluindo não críticos relevantes, com deduplicação e teto de publicação por rodada. Na prática, isso reduz a chance de comentários importantes ficarem apenas em “Comentários Ignorados”.
 
 A camada de linguagem e formatação também foi reforçada. O prompt continua exigindo resposta em português do Brasil, preservando identificadores, caminhos e trechos de código originais, enquanto os rótulos de categoria permanecem em inglês para padronização interna. A estrutura da saída continua formalizada em JSON, com campos como revisão geral, esforço estimado, presença de testes e comentários inline. Esse desenho preserva previsibilidade e integração com o pipeline de publicação no GitHub.
 

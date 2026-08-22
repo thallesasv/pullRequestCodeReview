@@ -154,6 +154,7 @@ Certifique-se de substituir `https://github.example.com` pela URL real do seu Gi
 - **Resumo automático de PR**: Resumos concisos e relevantes das mudanças
 - **Qualidade de código**: Detecta bugs, antipadrões e problemas de estilo
 - **Interativo**: Responde perguntas e esclarecimentos nos comentários
+- **Sinal alto, baixo ruído**: Prioriza comentários de maior impacto com volume adaptativo de observações por revisão
 
 ### 🛡️ Segurança e qualidade
 

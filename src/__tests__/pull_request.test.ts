@@ -53,17 +53,20 @@ describe('Pull Request Handler', () => {
           }),
           listFiles: jest.fn().mockResolvedValue({
             data: [{ filename: 'test.ts', status: 'modified', patch: '@@ -1,1 +1,2 @@\n test\n+added' }]
-          }),
-          createReview: jest.fn().mockResolvedValue({
-            data: { id: 'review-id' }
-          }),
-          submitReview: jest.fn().mockResolvedValue({})
+          })
         },
         issues: {
           listComments: jest.fn().mockResolvedValue({ data: [] }),
           createComment: jest.fn().mockResolvedValue({ data: { id: 'comment-id' } }),
           updateComment: jest.fn().mockResolvedValue({})
         }
+      },
+      pulls: {
+        createReviewComment: jest.fn().mockResolvedValue({}),
+        createReview: jest.fn().mockResolvedValue({
+          data: { id: 'review-id' }
+        }),
+        submitReview: jest.fn().mockResolvedValue({})
       }
     };
     (initOctokit as jest.Mock).mockReturnValue(mockOctokit);
@@ -148,5 +151,42 @@ describe('Pull Request Handler', () => {
     const mockOctokit = (initOctokit as jest.Mock).mock.results[0].value;
     expect(mockOctokit.rest.pulls.listCommits).not.toHaveBeenCalled();
     expect(runSummaryPrompt).not.toHaveBeenCalled();
+  });
+
+  test('submits relevant non-critical review comments', async () => {
+    (runReviewPrompt as jest.Mock).mockResolvedValue({
+      review: {
+        estimated_effort_to_review: 2,
+        score: 80,
+        has_relevant_tests: false,
+        security_concerns: 'Nao'
+      },
+      comments: [
+        {
+          file: 'test.ts',
+          start_line: 2,
+          end_line: 2,
+          highlighted_code: 'const x = doSomething();',
+          header: 'Falta validação de retorno',
+          content: 'A chamada pode retornar valor inválido sem tratamento.',
+          label: 'possible bug',
+          critical: false
+        }
+      ]
+    });
+
+    await handlePullRequest();
+
+    const mockOctokit = (initOctokit as jest.Mock).mock.results[0].value;
+    expect(mockOctokit.pulls.createReview).toHaveBeenCalledWith(
+      expect.objectContaining({
+        comments: expect.arrayContaining([
+          expect.objectContaining({
+            path: 'test.ts',
+            line: 2
+          })
+        ])
+      })
+    );
   });
 }); 

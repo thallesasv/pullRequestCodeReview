@@ -152,8 +152,14 @@ Revise apenas o código novo adicionado no diff (linhas iniciadas com '+'). Anal
 Before commenting, ask: (1) is there a concrete problem in the changed code? (2) is the impact real and user-visible? (3) is the fix actionable and specific? If any answer is no, do not comment.
 Antes de comentar, responda: (1) há um problema concreto no código alterado? (2) o impacto é real e visível ao usuário? (3) a correção é acionável e específica? Se qualquer resposta for não, não comente.
 
-Return at most 5 comments. Avoid duplicate reports, overlapping findings, and repeated comments on the same issue. Prefer a single high-value comment over multiple weak ones.
-Retorne no máximo 5 comentários. Evite relatos duplicados, achados sobrepostos e comentários repetidos sobre o mesmo problema. Prefira um comentário de alto valor em vez de vários fracos.
+Comment volume policy: avoid both under-reporting and noisy over-reporting. Return 0 to 12 comments, preferring quality over quantity. Typical range is 2 to 8 comments when real issues exist. For small or low-risk changes, 0 to 3 comments is expected.
+Política de volume de comentários: evite tanto subnotificação quanto excesso de ruído. Retorne de 0 a 12 comentários, priorizando qualidade sobre quantidade. A faixa típica é de 2 a 8 comentários quando houver problemas reais. Para mudanças pequenas ou de baixo risco, o esperado é 0 a 3 comentários.
+
+Prioritize findings in this order: security vulnerabilities, real bugs/regressions, missing or weak validation, incorrect API/HTTP behavior, high-impact maintainability risks (for example dependency injection anti-patterns that increase coupling), and then other substantial issues.
+Priorize os achados nesta ordem: vulnerabilidades de segurança, bugs/regressões reais, ausência ou fraqueza de validações, comportamento incorreto de API/HTTP, riscos relevantes de manutenibilidade (por exemplo anti-padrões de injeção de dependência que aumentam acoplamento) e, depois, outros problemas substanciais.
+
+Avoid duplicate reports, overlapping findings, and repeated comments on the same issue. Prefer a single high-value comment over multiple weak ones.
+Evite relatos duplicados, achados sobrepostos e comentários repetidos sobre o mesmo problema. Prefira um comentário de alto valor em vez de vários fracos.
 
 Use markdown formatting only inside the comment text. Each comment should explain the problem, why it matters, and the expected corrective action.
 Use markdown apenas dentro do texto do comentário. Cada comentário deve explicar o problema, por que ele importa e a ação corretiva esperada.

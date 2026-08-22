@@ -6,7 +6,8 @@ describe('review prompt builders', () => {
 
     expect(systemPrompt).toContain('Priorize apenas problemas');
     expect(systemPrompt).toContain('evidência direta no trecho alterado');
-    expect(systemPrompt).toContain('no máximo 5 comentários');
+    expect(systemPrompt).toContain('Retorne de 0 a 12 comentários');
+    expect(systemPrompt).toContain('A faixa típica é de 2 a 8 comentários');
     expect(systemPrompt).toContain('Use camelCase.');
   });
 
