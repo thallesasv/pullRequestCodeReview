@@ -16,6 +16,54 @@ import { Octokit } from "@octokit/action";
 import { Context } from "@actions/github/lib/context";
 import { buildComment, listPullRequestCommentThreads } from "./comments";
 
+const MAX_INLINE_COMMENTS = 12;
+const MAX_NON_CRITICAL_INLINE_COMMENTS = 8;
+
+function getCommentPriority(comment: AIComment): number {
+  if (comment.critical) {
+    return 1000;
+  }
+
+  const normalizedLabel = comment.label.trim().toLowerCase();
+  const labelWeight: Record<string, number> = {
+    security: 90,
+    bug: 85,
+    "possible bug": 80,
+    "possible issue": 70,
+    performance: 60,
+    "best practice": 55,
+    maintainability: 50,
+    enhancement: 40,
+    readability: 25,
+    typo: 20,
+  };
+
+  return labelWeight[normalizedLabel] ?? 35;
+}
+
+function dedupeComments(comments: AIComment[]): AIComment[] {
+  const seen = new Set<string>();
+  const deduped: AIComment[] = [];
+
+  for (const comment of comments) {
+    const key = [
+      comment.file,
+      comment.start_line,
+      comment.end_line,
+      comment.header.trim().toLowerCase(),
+    ].join("|");
+
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    deduped.push(comment);
+  }
+
+  return deduped;
+}
+
 const IS_DRY_RUN = process.env.DRY_RUN === "1" || process.env.DRY_RUN === "true";
 
 export async function handlePullRequest() {
@@ -311,15 +359,30 @@ async function submitReview(
   }
 
   // Handle line comments
-  let lineComments = [];
-  let skippedComments = [];
-  for (const comment of comments) {
-    if (comment.critical || comment.label === "typo") {
-      lineComments.push(comment);
-    } else {
-      skippedComments.push(comment);
-    }
-  }
+  const lineCandidates = dedupeComments(comments.filter((c) => !!c.end_line));
+  const sortedCandidates = [...lineCandidates].sort(
+    (a, b) => getCommentPriority(b) - getCommentPriority(a)
+  );
+
+  const criticalComments = sortedCandidates.filter((c) => c.critical);
+  const nonCriticalComments = sortedCandidates.filter((c) => !c.critical);
+
+  const remainingSlots = Math.max(MAX_INLINE_COMMENTS - criticalComments.length, 0);
+  const nonCriticalLimit = Math.min(remainingSlots, MAX_NON_CRITICAL_INLINE_COMMENTS);
+  const selectedNonCritical = nonCriticalComments.slice(0, nonCriticalLimit);
+
+  const lineComments = [...criticalComments, ...selectedNonCritical];
+  const selectedKeys = new Set(
+    lineComments.map((c) =>
+      [c.file, c.start_line, c.end_line, c.header.trim().toLowerCase()].join("|")
+    )
+  );
+  const skippedComments = lineCandidates.filter(
+    (c) =>
+      !selectedKeys.has(
+        [c.file, c.start_line, c.end_line, c.header.trim().toLowerCase()].join("|")
+      )
+  );
 
   // Try to submit all comments at once
   try {

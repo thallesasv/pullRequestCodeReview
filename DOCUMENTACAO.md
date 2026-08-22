@@ -160,6 +160,13 @@ Ele trata dois tipos de comentários:
 - Comentários soltos por arquivo, postados individualmente.
 - Comentários inline associados a linhas específicas, agrupados em uma review única quando possível.
 
+No fluxo inline, a publicação também aplica uma etapa de curadoria para equilibrar cobertura e ruído:
+
+- Deduplicação de achados equivalentes no mesmo trecho.
+- Ranqueamento por prioridade (ex.: segurança, bug, validação, regressão, manutenibilidade).
+- Seleção com limite adaptativo, mantendo comentários críticos e incluindo também comentários não críticos de alto valor.
+- Cap global de comentários inline por execução para evitar excesso.
+
 Se a criação em lote falhar, o código faz fallback e envia os comentários um a um. Essa abordagem aumenta a robustez contra limitações ou erros pontuais da API do GitHub.
 
 ### 4.9. Modo dry-run
@@ -330,7 +337,25 @@ As respostas do LLM são validadas com esquemas Zod.
 
 Se a primeira resposta falhar na validação, o sistema tenta novamente com instruções mais rígidas para JSON puro. Essa estratégia reduz falhas ocasionais de formatação e melhora a confiabilidade do pipeline.
 
-### 11.3. Provedores concretos
+### 11.3. Prompt para revisão automatizada de código
+
+O prompt utilizado na etapa de revisão técnica, implementado em [src/prompts.ts](src/prompts.ts), constitui o principal mecanismo de instrução do sistema para a análise automatizada de Pull Requests. Ele é estruturado em duas camadas: uma instrução de sistema, responsável por definir o papel do modelo como revisor técnico sênior, e uma instrução de usuário, que fornece o contexto do PR, incluindo título, descrição, resumo e diffs relevantes.
+
+A primeira parte do prompt orienta o modelo a agir como um analista de software experiente e a priorizar apenas problemas que tenham evidência concreta no trecho alterado. Essa abordagem implementa uma política de revisão centrada em risco: o sistema é guiado a identificar falhas que possam resultar em regressão funcional, problema de segurança, ausência de validação, fuga de dados, problemas de concorrência ou degradação de manutenção. Além disso, ele evita comentários sobre aspectos cosméticos, preferências de codificação e refatorações especulativas.
+
+Uma melhoria aplicada ao prompt foi a introdução de critérios explícitos de evidência e de descarte. O modelo é instruído a analisar apenas o código novo do diff, especialmente linhas com prefixo `+`, e a ignorar qualquer problema que dependa de suposição, contexto externo ou informação não presente no patch. Essa regra é importante para reduzir falsos positivos e preservar a confiabilidade da análise. Em termos práticos, a ferramenta passa a agir como um filtro de riscos relevantes, e não como um gerador de observações genéricas.
+
+Além disso, o prompt passou a exigir uma verificação prévia antes de publicar cada comentário: o modelo deve responder, de forma implícita, se há um problema concreto, se o impacto é real e visível ao usuário e se a correção é acionável e específica. Quando qualquer uma dessas condições não é atendida, o comentário é descartado. Essa estratégia aumenta a qualidade da revisão porque evita a publicação de alertas fracos, redundantes ou sem fundamento técnico.
+
+Outro ajuste importante foi a implementação de uma política adaptativa de volume. O prompt agora orienta a retornar de 0 a 12 comentários, com faixa típica de 2 a 8 quando houver problemas reais, e de 0 a 3 para mudanças pequenas ou de baixo risco. Essa política reduz ruído informacional sem subnotificar achados relevantes.
+
+De forma complementar, a seleção final de comentários na etapa de publicação também foi incrementada: em vez de publicar apenas comentários `critical` (ou casos muito específicos), o sistema passou a ranquear e selecionar comentários de maior impacto, incluindo não críticos relevantes, com deduplicação e teto de publicação por rodada. Na prática, isso reduz a chance de comentários importantes ficarem apenas em “Comentários Ignorados”.
+
+A camada de linguagem e formatação também foi reforçada. O prompt continua exigindo resposta em português do Brasil, preservando identificadores, caminhos e trechos de código originais, enquanto os rótulos de categoria permanecem em inglês para padronização interna. A estrutura da saída continua formalizada em JSON, com campos como revisão geral, esforço estimado, presença de testes e comentários inline. Esse desenho preserva previsibilidade e integração com o pipeline de publicação no GitHub.
+
+Do ponto de vista do TCC, esse prompt representa uma evolução importante da arquitetura do sistema: ele deixa a IA mais rigorosa, contextualizada e orientada a evidência. Ao combinar restrição ao diff, priorização de risco real, descarte de comentários sem base técnica e validação estrutural, a ferramenta torna-se um suporte mais confiável à revisão de código, mantendo a decisão final sob supervisão humana. Essa mudança é relevante porque aproxima a solução de um modelo de revisão assistida por IA, e não de um avaliador automatizado indiscriminado.
+
+### 11.4. Provedores concretos
 
 As implementações em [src/providers/ai-sdk.ts](src/providers/ai-sdk.ts) e [src/providers/sapaicore.ts](src/providers/sapaicore.ts) fazem o trabalho real de chamada ao modelo.
 

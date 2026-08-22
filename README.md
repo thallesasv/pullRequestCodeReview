@@ -96,7 +96,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-          LLM_MODEL: "claude-sonnet-4-5"
+          LLM_MODEL: "claude-sonnet-4-6"
 ```
 
 A action requer:
@@ -154,6 +154,7 @@ Certifique-se de substituir `https://github.example.com` pela URL real do seu Gi
 - **Resumo automático de PR**: Resumos concisos e relevantes das mudanças
 - **Qualidade de código**: Detecta bugs, antipadrões e problemas de estilo
 - **Interativo**: Responde perguntas e esclarecimentos nos comentários
+- **Sinal alto, baixo ruído**: Prioriza comentários de maior impacto com volume adaptativo de observações por revisão
 
 ### 🛡️ Segurança e qualidade
 
@@ -190,7 +191,7 @@ Execute o revisor localmente em PRs reais usando sua autenticação do GitHub.
 - GitHub CLI autenticado: `gh auth login`
 - Arquivo `.env` na raiz do repositório com:
   - `LLM_API_KEY=...` (sua chave de API)
-  - `LLM_MODEL=...` (ex.: `claude-3-5-sonnet-20241022`, `gpt-4o-mini`)
+  - `LLM_MODEL=...` (ex.: `claude-sonnet-4-6`, `claude-3-5-sonnet-20241022`, `gpt-4o-mini`)
   - Opcional: `LLM_PROVIDER=ai-sdk` (padrão)
   - Opcional: `LLM_BASE_URL=...` (para provedores compatíveis com OpenAI, como OpenRouter)
 
