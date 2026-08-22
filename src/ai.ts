@@ -54,6 +54,7 @@ const LLM_MODELS: Record<AIProviderType, ModelConfig[]> = {
     {
       name: "claude-sonnet-5",
       createAi: createAnthropic,
+      supportsTemperature: false,
     },
     // OpenAI
     {
@@ -251,6 +252,7 @@ type ModelConfig = {
   name: string;
   createAi?: any;
   temperature?: number;
+  supportsTemperature?: boolean;
 };
 
 const MAX_LOG_STRING_LENGTH = 1200;
@@ -428,7 +430,8 @@ export async function runPrompt({
 
   const inferenceConfig = {
     prompt,
-    ...(modelConfig.temperature !== undefined
+    ...(modelConfig.supportsTemperature !== false &&
+      modelConfig.temperature !== undefined
       ? { temperature: modelConfig.temperature }
       : {}),
     system: systemPrompt,
