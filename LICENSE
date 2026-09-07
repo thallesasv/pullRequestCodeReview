@@ -1,6 +1,20 @@
+This project is based on the Presubmit - AI Code Reviewer project:
+https://github.com/presubmit/ai-reviewer
+
+The original project is distributed under the MIT License.
+This repository contains modifications and extensions developed
+for an undergraduate thesis in Computer Engineering.
+
+------------------------------------------------------------
+
+Original copyright:
+
+------------------------------------------------------------
+
 MIT License
 
-Copyright (c) 2026 Thalles Verçosa
+Copyright (c) 2024 Presubmit.ai
+Copyright (c) 2024 Bogdan Stanga
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
