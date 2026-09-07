@@ -1,94 +1,166 @@
-<div align="center"> <h1> PR Review AI </h1>
+<div align="center">
+  <h1>
+    AI Code Review Bot
+  </h1>
 
-<p><em>Revisões de PR inteligentes, instantâneas e com consciência de contexto</em></p>
+  <p><em>Automated Code Review for GitHub Pull Requests using Large Language Models</em></p>
 
- 
- 
- 
+[![GitHub License](https://img.shields.io/github/license/SEU-USUARIO/SEU-REPOSITORIO?color=yellow)](LICENSE)
 
 </div>
 
 <br/>
 
-O PR Review AI é uma ferramenta para revisão automatizada de código em Pull Requests do GitHub utilizando modelos de linguagem de grande escala (LLMs).
+## Sobre o projeto
 
-Este projeto foi desenvolvido a partir da adaptação e extensão do projeto Presubmit - AI Code Reviewer, disponibilizado sob a licença MIT. A implementação original foi utilizada como base para o desenvolvimento da solução, sobre a qual foram realizadas modificações e implementadas funcionalidades específicas para os objetivos deste Trabalho de Conclusão de Curso (TCC).
+Este projeto apresenta uma ferramenta para **revisão automatizada de código em Pull Requests do GitHub utilizando modelos de linguagem de grande escala (LLMs)**.
 
-A ferramenta tem como objetivo auxiliar o processo de Code Review, identificando possíveis problemas no código, sugerindo melhorias e fornecendo informações relevantes sobre as alterações realizadas em uma Pull Request.
+A ferramenta tem como objetivo auxiliar o processo de Code Review, identificando possíveis problemas no código, sugerindo melhorias e fornecendo comentários relacionados às alterações realizadas em uma Pull Request.
 
-🔍 Análise instantânea e aprofundada de PRs: Detecta bugs, falhas de segurança e oportunidades de otimização em tempo real
-🎯 Foque no que importa: Deixe a IA cuidar do básico enquanto pessoas focam em arquitetura e lógica complexa
-✨ Geração de título e descrição: Economize tempo deixando a IA gerar título e descrição relevantes para seu PR
-💬 Interativo e inteligente: Responde perguntas e gera sugestões de código diretamente no seu PR
-⚡ Configuração ultrarrápida: Funciona em 2 minutos com GitHub Actions
+O projeto foi desenvolvido como parte de um **Trabalho de Conclusão de Curso (TCC) em Engenharia de Computação**.
 
 <br/>
 
-🤝 Observação: O PR Review AI foi criado para complementar revisores humanos, não para substituí-los. Ele ajuda a identificar problemas de segurança e bugs logo no início, além de fornecer contexto sobre a mudança como um todo, tornando a revisão humana mais eficiente.
+## Projeto de origem
 
-<br/>
+A implementação deste projeto teve como ponto de partida o projeto **Presubmit - AI Code Reviewer**, desenvolvido por Presubmit.ai e Bogdan Stanga:
 
-Origem do projeto e atribuição
-
-Este projeto foi desenvolvido a partir da adaptação e extensão do projeto Presubmit - AI Code Reviewer, desenvolvido por Presubmit.ai e Bogdan Stanga e disponibilizado sob a MIT License.
-
-O projeto original serviu como base para a implementação da solução apresentada neste repositório. A partir dessa implementação, foram realizadas modificações, adaptações e novas funcionalidades com o objetivo de atender aos requisitos e objetivos definidos para este Trabalho de Conclusão de Curso.
-
-As partes do código provenientes do projeto original permanecem sujeitas aos termos da licença MIT. As alterações, extensões e componentes desenvolvidos especificamente para este trabalho foram implementados no contexto deste TCC.
-
-Projeto original
-
-Presubmit - AI Code Reviewer
 https://github.com/presubmit/ai-reviewer
 
-Autores do projeto original:
+O projeto original disponibiliza uma ferramenta de revisão de código baseada em inteligência artificial e é distribuído sob a **MIT License**.
 
-Presubmit.ai
-Bogdan Stanga
+A partir dessa implementação, foram realizadas modificações, adaptações e extensões com o objetivo de atender aos requisitos e objetivos definidos para este trabalho acadêmico.
 
-Licença: MIT License
-
-O aviso de copyright e o texto da licença do projeto original são mantidos neste repositório conforme os termos da licença.
-
-Contribuição deste trabalho
-
-A implementação apresentada neste repositório contém modificações e extensões desenvolvidas especificamente para os objetivos deste TCC.
-
-Entre as contribuições estão alterações na implementação original, adaptações na integração com modelos de linguagem e funcionalidades desenvolvidas para a avaliação da solução no contexto deste trabalho.
-
-A descrição detalhada das modificações realizadas, bem como a distinção entre a implementação original e as contribuições desenvolvidas neste trabalho, é apresentada no TCC.
+As alterações realizadas neste projeto constituem a contribuição de desenvolvimento deste TCC.
 
 <br/>
 
-Veja em ação
+## Principais objetivos
 
-💡 Veja um exemplo completo de revisão de PR nas imagens abaixo.
-
-A análise automatizada detecta problemas potenciais e fornece insights acionáveis:
-
-<div align="left"> <a href="https://github.com/thallesasv/pullRequestCodeReview/pulls"> <img src="assets/review_example_3.png" alt="Exemplo de revisão de código com IA" width="650"/> </a> </div>
-
-<br/>
-
-Discussões interativas ajudam a esclarecer detalhes de implementação:
-
-<div align="left"> <a href="https://github.com/thallesasv/pullRequestCodeReview/pulls"> <img src="assets/comment_example.png" alt="Exemplo de thread de comentários da IA" width="650"/> </a> </div>
+* Automatizar parte do processo de revisão de código em Pull Requests;
+* Utilizar modelos de linguagem para analisar alterações realizadas no código;
+* Identificar possíveis bugs, problemas de qualidade e oportunidades de melhoria;
+* Gerar comentários e sugestões relacionados ao código analisado;
+* Integrar a solução ao fluxo de desenvolvimento utilizando GitHub Actions;
+* Avaliar experimentalmente o desempenho da solução em diferentes cenários.
 
 <br/>
 
-Uso
-Passo 1: Adicione o segredo LLM_API_KEY
-Vá em Settings do seu repositório > Secrets and Variables > Actions
-Clique em "New repository secret"
-Adicione um novo segredo com:
-Nome: LLM_API_KEY
-Valor: sua chave de API de um destes provedores:
-Anthropic Console (Claude)
-Passo 2: Crie o workflow do GitHub
+## Funcionalidades
 
-Adicione esta GitHub Action ao seu repositório criando .github/workflows/pr-review-ai.yml:
+### 🤖 Revisão automatizada
 
-name: PR Review AI
+A ferramenta analisa as alterações presentes em Pull Requests e utiliza um modelo de linguagem para identificar possíveis problemas e gerar sugestões de melhoria.
+
+### 🔍 Análise contextual
+
+A análise considera o contexto das alterações realizadas na Pull Request para produzir comentários mais relevantes.
+
+### 💬 Comentários na Pull Request
+
+Os resultados da análise podem ser apresentados diretamente na Pull Request do GitHub, permitindo que o desenvolvedor consulte as sugestões durante o processo de revisão.
+
+### ⚙️ Configuração do modelo
+
+A ferramenta permite configurar o modelo de linguagem utilizado na análise por meio de variáveis de ambiente.
+
+### ⚡ Integração com GitHub Actions
+
+A execução pode ser integrada ao fluxo de desenvolvimento por meio de GitHub Actions, permitindo que a análise seja realizada automaticamente durante o processo de desenvolvimento.
+
+<br/>
+
+## Tecnologias utilizadas
+
+* **TypeScript / JavaScript**
+* **Node.js**
+* **GitHub Actions**
+* **GitHub API**
+* **Large Language Models (LLMs)**
+* **AI SDK**
+* **Anthropic / Claude**
+* Outros provedores de modelos de linguagem compatíveis com a implementação
+
+<br/>
+
+## Configuração
+
+### Pré-requisitos
+
+* Node.js 18 ou superior;
+* Git;
+* Uma conta no GitHub;
+* Chave de API de um provedor de modelo de linguagem;
+* `pnpm` instalado.
+
+### Instalação
+
+Clone o repositório:
+
+```bash
+git clone https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
+cd SEU-REPOSITORIO
+```
+
+Instale as dependências:
+
+```bash
+pnpm install
+```
+
+### Variáveis de ambiente
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+LLM_API_KEY=sua-chave-de-api
+LLM_MODEL=claude-sonnet-4-5
+```
+
+Dependendo do provedor utilizado, outras variáveis podem ser necessárias.
+
+<br/>
+
+## Utilização
+
+### Execução local
+
+Compile o projeto:
+
+```bash
+pnpm build
+```
+
+Para executar uma análise de Pull Request em modo de teste:
+
+```bash
+pnpm review -- --pr 123 --dry-run
+```
+
+Para salvar o resultado da análise em um arquivo:
+
+```bash
+pnpm review -- --pr 123 --dry-run --out
+```
+
+Também é possível especificar o repositório:
+
+```bash
+pnpm review -- --pr 123 --owner meu-usuario --repo meu-repositorio --dry-run
+```
+
+O modo `--dry-run` permite realizar a análise sem publicar alterações na Pull Request.
+
+<br/>
+
+## Integração com GitHub Actions
+
+A ferramenta pode ser integrada a um repositório GitHub por meio de um workflow.
+
+Um exemplo de configuração é:
+
+```yaml
+name: AI Code Review
 
 permissions:
   contents: read
@@ -96,193 +168,157 @@ permissions:
   issues: write
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize]
-  pull_request_review_comment:
-    types: [created]
 
 jobs:
   review:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Check required secrets
-        run: |
-          if [ -z "${{ secrets.LLM_API_KEY }}" ]; then
-            echo "Error: LLM_API_KEY secret is not configured"
-            exit 1
-          fi
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: thallesasv/pullRequestCodeReview@main
+      - name: AI Code Review
+        uses: SEU-USUARIO/SEU-REPOSITORIO@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-          LLM_MODEL: "claude-sonnet-4-6"
+          LLM_MODEL: "claude-sonnet-5"
+```
 
-A action requer:
-
-GITHUB_TOKEN: Fornecido automaticamente pelo GitHub Actions
-LLM_API_KEY: Sua chave de API, adicionada no passo 1
-LLM_MODEL: Modelo LLM utilizado na análise. Garanta que o modelo seja compatível e corresponda ao LLM_API_KEY.
-LLM_BASE_URL (opcional): URL base para provedores compatíveis com OpenAI ao utilizar LLM_PROVIDER=ai-sdk (ex.: https://openrouter.ai/api/v1 para OpenRouter).
-Usando provedores compatíveis com OpenAI
-
-Para utilizar o OpenRouter ou outros provedores compatíveis com OpenAI com o provedor ai-sdk, adicione a variável de ambiente LLM_BASE_URL:
-
-      - uses: thallesasv/pullRequestCodeReview@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-          LLM_MODEL: "openai/gpt-4o-mini"
-          LLM_PROVIDER: "ai-sdk"
-          LLM_BASE_URL: "https://openrouter.ai/api/v1"
-
-Observação: Esta configuração funciona apenas com LLM_PROVIDER=ai-sdk. Ela suporta APIs compatíveis com OpenAI, incluindo OpenRouter, Anyscale, Together AI e outras.
-
-Suporte ao GitHub Enterprise Server
-
-Se você utiliza o GitHub Enterprise Server, pode configurar a action para funcionar com sua instância adicionando estas variáveis de ambiente:
-
-      - uses: thallesasv/pullRequestCodeReview@main
-        env:
-          GITHUB_API_URL: "https://github.example.com/api/v3"
-          GITHUB_SERVER_URL: "https://github.example.com"
-
-Você também pode configurar essas opções utilizando parâmetros de entrada:
-
-      - uses: thallesasv/pullRequestCodeReview@main
-        with:
-          github_api_url: "https://github.example.com/api/v3"
-          github_server_url: "https://github.example.com"
-
-Certifique-se de substituir https://github.example.com pela URL real do seu GitHub Enterprise Server.
+> **Observação:** adapte o workflow de acordo com a estrutura e a forma de distribuição da implementação deste projeto.
 
 <br/>
 
-Recursos
-🤖 Revisões inteligentes
-Análise aprofundada: Revisão linha a linha com sugestões conscientes de contexto
-Resumo automático de PR: Resumos concisos e relevantes das mudanças
-Qualidade de código: Detecta bugs, antipadrões e problemas de estilo
-Interativo: Responde perguntas e esclarecimentos nos comentários
-Sinal alto, baixo ruído: Prioriza comentários de maior impacto com volume adaptativo de observações por revisão
-🛡️ Segurança e qualidade
-Detecção de vulnerabilidades: Detecta problemas de segurança e segredos vazados
-Boas práticas: Aplica padrões de código e diretrizes de segurança
-Performance: Identifica possíveis gargalos e oportunidades de otimização
-Documentação: Verifica aspectos relacionados à documentação e clareza do código
-⚙️ Configurável
-Mencione @prreview no título do PR para geração automática
-Desative revisões com o comentário @prreview ignore
-Profundidade da revisão e áreas de foco configuráveis
-Regras e preferências personalizáveis
-⚡ Integração sem atrito
-Configuração com GitHub Actions
-Suporte aos principais provedores de LLM, incluindo Claude, GPT e Gemini
-Feedback automatizado em Pull Requests
-Execução integrada ao fluxo de desenvolvimento
+## Processo de revisão
+
+De forma simplificada, o processo de análise segue o fluxo:
+
+```text
+Pull Request
+     │
+     ▼
+GitHub API
+     │
+     ▼
+Obtenção das alterações
+     │
+     ▼
+Processamento do código
+     │
+     ▼
+Modelo de Linguagem
+     │
+     ▼
+Análise e geração das sugestões
+     │
+     ▼
+Resultado da revisão
+     │
+     ▼
+Comentários na Pull Request
+```
 
 <br/>
 
-Testes locais com CLI (Dry-Run)
+## Avaliação experimental
 
-Execute o revisor localmente em PRs reais utilizando sua autenticação do GitHub.
+Como parte do TCC, a ferramenta pode ser utilizada em experimentos destinados a avaliar a qualidade das revisões automatizadas.
 
-Pré-requisitos
-Node.js 18+
-GitHub CLI autenticado: gh auth login
-Arquivo .env na raiz do repositório com:
-LLM_API_KEY=... (sua chave de API)
-LLM_MODEL=... (ex.: claude-sonnet-5)
-Opcional: LLM_PROVIDER=ai-sdk (padrão)
-Opcional: LLM_BASE_URL=... (para provedores compatíveis com OpenAI, como OpenRouter)
-Build
-pnpm install
-pnpm build
-Comandos
+Entre as métricas consideradas estão:
 
-Listar PRs:
+* precisão das sugestões;
+* quantidade de problemas identificados;
+* relevância dos comentários;
+* tipos de problemas encontrados;
+* desempenho em diferentes projetos e linguagens;
+* comportamento da ferramenta em diferentes modelos de linguagem.
 
-pnpm review -- --list-prs --state open --limit 5
-
-Revisar um PR (dry-run):
-
-pnpm review -- --pr 123 --dry-run
-
-Salvar saída em arquivo:
-
-# Gera automaticamente o nome do arquivo: dry/pr-123.txt
-pnpm review -- --pr 123 --dry-run --out
-
-# Caminho de saída personalizado
-pnpm review -- --pr 123 --dry-run --out my-review.txt
-
-Especificar repositório:
-
-pnpm review -- --pr 123 --owner myorg --repo myrepo --dry-run
-
-Ou defina no .env:
-
-GITHUB_REPOSITORY=myorg/myrepo
-Observações
-Usa automaticamente seu gh auth token
-O modo --dry-run ignora todas as escritas na API do GitHub e registra o que seria publicado
-Sem --dry-run, a revisão será publicada no GitHub
-O padrão é o repositório definido pela variável GITHUB_REPOSITORY ou thallesasv/pullRequestCodeReview
+Os resultados obtidos nos experimentos são apresentados e discutidos no trabalho acadêmico associado a este projeto.
 
 <br/>
 
-Avaliação experimental
+## Estrutura do projeto
 
-Este projeto também é utilizado para os experimentos descritos no Trabalho de Conclusão de Curso.
+A estrutura pode ser organizada da seguinte forma:
 
-A avaliação busca analisar a utilização de modelos de linguagem na automatização do processo de Code Review, considerando aspectos como:
-
-precisão das sugestões;
-relevância dos comentários;
-capacidade de identificação de problemas;
-tipos de problemas identificados;
-comportamento da ferramenta em diferentes Pull Requests;
-desempenho utilizando diferentes modelos de linguagem.
-
-Os critérios, procedimentos experimentais, métricas e resultados são apresentados e discutidos no TCC associado a este projeto.
+```text
+.
+├── .github/
+│   └── workflows/
+├── src/
+│   ├── ...
+│   └── ...
+├── assets/
+├── .env.example
+├── LICENSE
+├── package.json
+├── README.md
+└── ...
+```
 
 <br/>
 
-Licença
+## Origem e contribuições
 
-Este projeto contém código derivado do projeto Presubmit - AI Code Reviewer, disponibilizado originalmente sob a MIT License.
+Este projeto é baseado no **Presubmit - AI Code Reviewer**, disponível em:
 
-O código original utilizado como base permanece sujeito aos termos da licença MIT, incluindo a exigência de preservação dos avisos de copyright e da licença.
+https://github.com/presubmit/ai-reviewer
 
-Os avisos de copyright dos autores do projeto original são:
+O projeto original foi desenvolvido por **Presubmit.ai** e **Bogdan Stanga** e disponibilizado sob a licença MIT.
+
+O código original utilizado como base permanece sujeito aos termos da licença MIT. As modificações e extensões realizadas neste projeto foram desenvolvidas especificamente para os objetivos deste Trabalho de Conclusão de Curso.
+
+A distinção entre componentes provenientes do projeto original e componentes desenvolvidos ou modificados no contexto deste trabalho é apresentada na documentação e no código-fonte do projeto.
+
+<br/>
+
+## Licença
+
+Este projeto utiliza como base código originalmente distribuído sob a **MIT License**.
+
+Os avisos de copyright e o texto da licença do projeto original são mantidos neste repositório conforme exigido pela licença.
+
+### Copyright do projeto original
+
+```text
+MIT License
 
 Copyright (c) 2024 Presubmit.ai
 Copyright (c) 2024 Bogdan Stanga
 
-O texto completo da licença MIT pode ser consultado no arquivo LICENSE deste repositório.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-As modificações e extensões realizadas neste repositório foram desenvolvidas no contexto de um Trabalho de Conclusão de Curso em Engenharia de Computação.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+O texto completo da licença também está disponível no arquivo [`LICENSE`](LICENSE) deste repositório.
 
 <br/>
 
-Referência do projeto original
+## Referência
 
-PRESUBMIT.AI; STANGA, Bogdan. AI Reviewer. GitHub, 2024. Disponível em: https://github.com/presubmit/ai-reviewer. Acesso em: [data de acesso].
+PRESUBMIT.AI; STANGA, Bogdan. **AI Reviewer**. GitHub, 2024. Disponível em: https://github.com/presubmit/ai-reviewer. Acesso em: [data de acesso].
 
 <br/>
 
-Trabalho de Conclusão de Curso
+## Trabalho de Conclusão de Curso
 
-Este projeto está associado a um Trabalho de Conclusão de Curso desenvolvido no curso de Engenharia de Computação.
+Este projeto está associado ao Trabalho de Conclusão de Curso desenvolvido no curso de **Engenharia de Computação**.
 
 O trabalho investiga a utilização de modelos de linguagem na automatização do processo de Code Review em Pull Requests do GitHub, buscando avaliar a capacidade da ferramenta de identificar problemas e fornecer sugestões relevantes aos desenvolvedores.
-
-<br/>
-
-Mostre seu apoio! ⭐
-
-Se você considera o PR Review AI útil para melhorar o processo de revisão:
-
-Dê uma estrela neste repositório para mostrar seu apoio e ajudar outras pessoas a descobri-lo
-Compartilhe sua experiência criando uma GitHub Issue
-Considere contribuir para deixá-lo ainda melhor
