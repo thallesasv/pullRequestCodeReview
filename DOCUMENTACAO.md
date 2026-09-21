@@ -65,7 +65,7 @@ O arquivo src/main.ts é a porta de entrada da GitHub Action. Ele lê a variáve
 
 - Qualquer outro evento gera um aviso de evento não suportado no log da Action.
 
-O módulo intercepta exceções não tratadas e invoca @actions/core.setFailed(), garantindo que o status da checagem no GitHub seja marcado como erro em caso de falha crítica.
+O módulo envolve o roteamento em `try/catch` e invoca `@actions/core.setFailed()` para falhas síncronas durante o despacho. Os handlers são assíncronos e atualmente são disparados sem `await`, portanto rejeições assíncronas não são necessariamente convertidas em falha da Action por esse `try/catch`.
 
 ## 4. Fluxo principal de revisão de Pull Request (`src/pull_request.ts`)
 O módulo src/pull_request.ts orquestra o ciclo completo de análise automatizada de um Pull Request.
@@ -116,7 +116,7 @@ A função `runSummaryPrompt()` em `src/prompts.ts` envia ao Claude Sonnet 5 os 
 - `title`: Título resumido da alteração.
 - `description`: Descrição executiva do impacto.
 - `files`: Resumo do impacto por arquivo.
-- `type`: Categoria do PR (`BUG`, `FEATURE`, `REFRACTOR`, `TESTS`, etc.).
+- `type`: Lista de categorias do PR (`BUG`, `FEATURE`, `REFACTOR`, `TESTS`, etc.).
 
 Esse resumo é posteriormente utilizado para atualizar o comentário principal do PR no GitHub.
 
@@ -164,7 +164,7 @@ Para prevenir retornos malformatados em linguagem natural, as respostas estrutur
 ## 7. Parsing de Diffs e Assinaturas Invisíveis (`src/diff.ts` e `src/comments.ts`)
 
 - **Parse de Hunks (`src/diff.ts`):** O patch é processado linha por linha para identificar marcadores `@@`. As linhas de adição (`+`) são numeradas de acordo com a posição final no arquivo novo, garantindo o alinhamento correto das caixas de comentário inline no GitHub.
-- **Idempotência por Assinaturas (`src/comments.ts` e `src/messages.ts`):** Comentários gerados contêm a assinatura invisível `<!-- prreview.ai: comment -->`. O comentário-resumo também contém `<!-- prreview.ai: overview message -->` e um payload entre `<!-- prreview.ai: payload --` e `-- prreview.ai: payload -->`. Essas marcas permitem identificar mensagens próprias, atualizar o resumo existente e executar revisões incrementais sem criar novos resumos a cada execução.
+- **Idempotência por Assinaturas (`src/comments.ts` e `src/messages.ts`):** Comentários inline e respostas gerados contêm a assinatura invisível `<!-- prreview.ai: comment -->`. O comentário-resumo usa `<!-- prreview.ai: overview message -->` e contém um payload entre `<!-- prreview.ai: payload --` e `-- prreview.ai: payload -->`. Essas marcas permitem identificar mensagens próprias, atualizar o resumo existente e executar revisões incrementais sem criar novos resumos a cada execução.
 
 ## 8. CLI Local para Testes e Validação Experimental (`src/cli.ts`)
 
