@@ -43,8 +43,7 @@ src/
   messages.ts             -> Montagem das mensagens de resumo, carregamento e review
   comments.ts             -> Gerenciamento de assinaturas invisíveis, payloads e idempotência
   providers/
-    ai-sdk.ts             -> Integração com Anthropic (Claude Sonnet 5), OpenAI e Google via AI SDK
-    sapaicore.ts          -> Implementação complementar para o SAP AI Core
+    ai-sdk.ts             -> Integração com Anthropic via AI SDK
 ```
 
 Outros arquivos essenciais do repositório:
@@ -156,7 +155,7 @@ As configurações opcionais incluem `LLM_PROVIDER` (atualmente `ai-sdk`), `GITH
 
 ### 6.2. Configuração do Provedor Anthropic
 
-O projeto utiliza primariamente o provedor `@ai-sdk/anthropic` para comunicação com o modelo Claude Sonnet 5. O módulo `src/ai.ts` aceita também `LLM_BASE_URL` para instâncias personalizadas ou gateways compatíveis com a API OpenAI.
+O projeto utiliza o provedor `@ai-sdk/anthropic` para comunicação com os modelos Claude Sonnet 4.5, 4.6 e 5.
 
 ### 6.3. Validação Estruturada com Zod
 
