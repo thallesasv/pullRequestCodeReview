@@ -20,7 +20,6 @@ export class AISDKProvider implements AIProvider {
   }: InferenceConfig): Promise<any> {
     const llm = this.createAiFunc({
       apiKey: config.llmApiKey,
-      ...(config.llmBaseUrl && { baseURL: config.llmBaseUrl }),
     });
     console.log("MODEL: ", this.modelName);
     console.log("TEMPERATURE RECEIVED: ", temperature);

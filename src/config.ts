@@ -5,17 +5,10 @@ export class Config {
   public llmApiKey: string | undefined;
   public llmModel: string | undefined;
   public llmProvider: string;
-  public llmBaseUrl: string | undefined;
   public githubToken: string | undefined;
   public styleGuideRules: string | undefined;
   public githubApiUrl: string;
   public githubServerUrl: string;
-
-  public sapAiCoreClientId: string | undefined;
-  public sapAiCoreClientSecret: string | undefined;
-  public sapAiCoreTokenUrl: string | undefined;
-  public sapAiCoreBaseUrl: string | undefined;
-  public sapAiResourceGroup: string | undefined;
 
   constructor() {
     this.githubToken = process.env.GITHUB_TOKEN;
@@ -35,32 +28,8 @@ export class Config {
     }
 
     this.llmApiKey = process.env.LLM_API_KEY;
-    const isSapAiSdk = this.llmProvider === AIProviderType.SAP_AI_SDK;
-    // SAP AI SDK does not require an API key
-    if (!this.llmApiKey && !isSapAiSdk) {
+    if (!this.llmApiKey) {
       throw new Error("LLM_API_KEY is not set");
-    }
-
-    const baseUrlFromEnv = process.env.LLM_BASE_URL;
-    const baseUrlFromInput = getInput("llm_base_url");
-    this.llmBaseUrl = baseUrlFromEnv || baseUrlFromInput || undefined;
-
-    // SAP AI Core configuration
-    this.sapAiCoreClientId = process.env.SAP_AI_CORE_CLIENT_ID;
-    this.sapAiCoreClientSecret = process.env.SAP_AI_CORE_CLIENT_SECRET;
-    this.sapAiCoreTokenUrl = process.env.SAP_AI_CORE_TOKEN_URL;
-    this.sapAiCoreBaseUrl = process.env.SAP_AI_CORE_BASE_URL;
-    this.sapAiResourceGroup = process.env.SAP_AI_RESOURCE_GROUP;
-    if (
-      isSapAiSdk &&
-      (!this.sapAiCoreClientId ||
-        !this.sapAiCoreClientSecret ||
-        !this.sapAiCoreTokenUrl ||
-        !this.sapAiCoreBaseUrl)
-    ) {
-      throw new Error(
-        "SAP AI Core configuration is not set. Please set SAP_AI_CORE_CLIENT_ID, SAP_AI_CORE_CLIENT_SECRET, SAP_AI_CORE_TOKEN_URL, and SAP_AI_CORE_BASE_URL."
-      );
     }
 
     // GitHub Enterprise Server support
@@ -117,13 +86,7 @@ export default process.env.NODE_ENV === "test"
       llmApiKey: "mock-api-key",
       llmModel: "mock-model",
       llmProvider: "mock-provider",
-      llmBaseUrl: undefined,
       styleGuideRules: "",
-      sapAiCoreClientId: "mock-client-id",
-      sapAiCoreClientSecret: "mock-client-secret",
-      sapAiCoreTokenUrl: "mock-token-url",
-      sapAiCoreBaseUrl: "mock-base-url",
-      sapAiResourceGroup: "default",
       githubApiUrl: "https://api.github.com",
       githubServerUrl: "https://github.com",
       loadInputs: jest.fn(),
