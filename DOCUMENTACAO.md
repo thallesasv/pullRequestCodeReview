@@ -49,7 +49,7 @@ src/
 
 Outros arquivos essenciais do repositório:
 
-- `action.yml`: Definição dos inputs, outputs e ponto de execução da GitHub Action (`dist/index.js`).
+- `action.yml`: Definição dos inputs e do ponto de execução da GitHub Action (`dist/index.js`).
 
 - `package.json`: Scripts de build (`npm run build`), execução local e suíte de testes Jest.
 
@@ -81,7 +81,7 @@ Antes de iniciar o parsing de arquivos, o fluxo valida:
 
 - Se os dados do PR estão presentes no payload.
 
-- Se a descrição ou o título contêm instruções para ignorar a revisão (ex.: `@prreview ignore`, `@presubmit skip`).
+- Se a descrição contém instruções para ignorar a revisão (ex.: `@prreview ignore`, `@presubmit skip`).
 
 Essa filtragem evita execuções desnecessárias da Action em momentos indesejados.
 
@@ -123,11 +123,11 @@ Esse resumo é posteriormente utilizado para atualizar o comentário principal d
 
 ### 4.7. Geração e curadoria da revisão técnica
 
-A função `runReviewPrompt()` submete os trechos alterados para a análise do Claude Sonnet 5. A publicação dos comentários passa por uma etapa de curadoria:
+A função `runReviewPrompt()` submete os trechos alterados para a análise do Claude Sonnet 5. O prompt instrui o modelo a comentar apenas linhas novas (`+`) com evidência direta de um problema real. Antes da publicação, o código valida o arquivo, remove comentários duplicados, ranqueia os candidatos e aplica limites:
 
-- **Filtro de Evidência Direta:** Serão descartados comentários sobre código não alterado ou sem prefixo `+`.
-- **Ranqueamento por Criticidade:** Problemas de segurança, bugs funcionais e concorrência têm prioridade sobre sugestões de manutenibilidade.
-- **Teto Adaptativo:** A publicação é limitada a uma faixa típica de 2 a 8 comentários para evitar poluição no PR.
+- **Ranqueamento por Criticidade:** Comentários críticos têm prioridade; entre os demais, segurança, bugs, problemas possíveis, desempenho e manutenibilidade recebem pesos decrescentes.
+- **Limite de comentários de linha:** São selecionados no máximo 8 comentários não críticos, além de todos os comentários críticos. Assim, o total pode ultrapassar 12 quando houver muitos comentários críticos.
+- **Comentários de arquivo:** Comentários sem `end_line` são enviados separadamente e não entram nesse limite.
 
 ### 4.8. Modo Dry-Run
 
@@ -137,19 +137,22 @@ O CLI permite a execução com a opção `--dry-run`. Nesse modo, o pipeline exe
 
 O módulo `src/pull_request_comment.ts` é acionado quando um desenvolvedor responde a um comentário deixado pelo bot em uma thread de revisão:
 
-1. Valida se o comentário foi criado recentemente.
+1. Valida se o comentário pertence a um evento `created`.
 2. Ignora mensagens geradas pela própria ferramenta (evitando loops infinitos).
-3. Recupera a thread do comentário e localiza o diff do arquivo associado.
-4. Executa `runReviewCommentPrompt()` enviando o histórico da conversa e o código-fonte ao Claude Sonnet 5.
-5. Se a IA determinar que uma resposta é necessária, publica a réplica como reply na mesma thread.
+3. Exige que a thread seja relevante, por conter uma assinatura, menção ou marcador reconhecido pela ferramenta.
+4. Recupera a thread e localiza o diff do arquivo associado.
+5. Executa `runReviewCommentPrompt()` enviando o histórico da conversa e o código-fonte ao Claude Sonnet 5.
+6. Se a IA determinar que uma resposta é necessária, publica a réplica como reply na mesma thread.
 
 ## 6. Configuração e provedores de IA (`src/config.ts` e `src/ai.ts`)
 
 ### 6.1. Variáveis de ambiente obrigatórias
 
 - `GITHUB_TOKEN`: Token de acesso para leitura e escrita na API do GitHub.
-- `LLM_MODEL`: Nome do modelo utilizado (padrão do projeto: `claude-sonnet-5`).
-- `LLM_API_KEY`: Chave de autenticação da API do provedor (Anthropic/OpenAI).
+- `LLM_MODEL`: Nome obrigatório do modelo utilizado. Os modelos atualmente suportados são `claude-sonnet-4-5`, `claude-sonnet-4-6` e `claude-sonnet-5`.
+- `LLM_API_KEY`: Chave de autenticação da API da Anthropic.
+
+As configurações opcionais incluem `LLM_PROVIDER` (atualmente `ai-sdk`), `GITHUB_API_URL` e `GITHUB_SERVER_URL` para GitHub Enterprise Server. A Action também aceita o input `style_guide_rules`, usado para acrescentar regras ao prompt de revisão; no modo CLI/debug, as regras podem ser lidas de `STYLE_GUIDE_RULES`.
 
 ### 6.2. Configuração do Provedor Anthropic
 
@@ -157,12 +160,12 @@ O projeto utiliza primariamente o provedor `@ai-sdk/anthropic` para comunicaçã
 
 ### 6.3. Validação Estruturada com Zod
 
-Para prevenir retornos malformatados em linguagem natural, todas as respostas da IA são passadas pelo validador Zod. Se a resposta inicial contiver erros de parse JSON, o sistema executa automaticamente uma nova tentativa exigindo a saída estrita no formato esperado.
+Para prevenir retornos malformatados em linguagem natural, as respostas estruturadas da IA são passadas pelo validador Zod. Quando ocorre uma falha de validação do schema, o sistema executa uma nova tentativa exigindo JSON estrito. O fluxo também aceita respostas de revisão envolvidas em uma chave adicional, como `$parameter`, e registra um diagnóstico sanitizado quando a nova tentativa falha.
 
 ## 7. Parsing de Diffs e Assinaturas Invisíveis (`src/diff.ts` e `src/comments.ts`)
 
 - **Parse de Hunks (`src/diff.ts`):** O patch é processado linha por linha para identificar marcadores `@@`. As linhas de adição (`+`) são numeradas de acordo com a posição final no arquivo novo, garantindo o alinhamento correto das caixas de comentário inline no GitHub.
-- **Idempotência por Assinaturas (`src/comments.ts`):** Todos os comentários gerados contêm uma tag invisível em HTML (`<!-- comment-signature: pr-review-ai -->`) e uma tag com o payload do estado anterior. Isso permite ao bot diferenciar suas próprias postagens de mensagens humanas e efetuar atualizações in-place sem gerar spam de notificações.
+- **Idempotência por Assinaturas (`src/comments.ts` e `src/messages.ts`):** Comentários gerados contêm a assinatura invisível `<!-- prreview.ai: comment -->`. O comentário-resumo também contém `<!-- prreview.ai: overview message -->` e um payload entre `<!-- prreview.ai: payload --` e `-- prreview.ai: payload -->`. Essas marcas permitem identificar mensagens próprias, atualizar o resumo existente e executar revisões incrementais sem criar novos resumos a cada execução.
 
 ## 8. CLI Local para Testes e Validação Experimental (`src/cli.ts`)
 
@@ -173,7 +176,7 @@ O arquivo `src/cli.ts` fornece uma interface de linha de comando para testar a f
 - `--list-prs`: Lista os Pull Requests abertos do repositório alvo.
 - `--pr <número>`: Executa a análise no PR informado.
 - `--dry-run`: Exibe o resumo e os comentários no terminal sem postar no GitHub.
-- `--out <caminho>`: Salva a estrutura de saída em um arquivo JSON local.
+- `--out <caminho>`: Salva a saída textual capturada em um arquivo local. Sem caminho, usa `dry/pr-<número>.txt`.
 
 ### Aplicação na Pesquisa Acadêmica (TCC II)
 
@@ -181,7 +184,7 @@ O CLI local foi o instrumento utilizado para rodar a avaliação experimental so
 
 ## 9. Procedimento de Build e Deploy
 
-Como a GitHub Action roda em ambiente Node.js isolado, o repositório compila todo o código TypeScript e suas dependências em um único arquivo empacotado (`dist/index.js`).
+Como a GitHub Action roda em ambiente Node.js isolado, o repositório compila o código TypeScript e suas dependências em arquivos empacotados. O build gera `dist/index.js` para a Action e `dist/cli.js` para o CLI local.
 
 Para gerar uma nova versão após alterações no código-fonte:
 
@@ -194,5 +197,6 @@ npm test
 
 # Compilar o pacote único para produção em dist/
 npm run build
+```
 
-O arquivo dist/index.js gerado pelo comando de build deve ser commitado no repositório Git para que a GitHub Action seja executada corretamente pelos repositórios que consumirem a ferramenta.
+O arquivo `dist/index.js` gerado pelo comando de build deve ser commitado no repositório Git para que a GitHub Action seja executada corretamente pelos repositórios que consumirem a ferramenta. O `dist/cli.js` também é necessário para executar o comando `review` após o build.
