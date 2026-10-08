@@ -165,7 +165,6 @@ CRITÉRIOS E REGRAS DE REVISÃO:
 - Não faça afirmações contraditórias sobre o código. Se a condição, validação ou comportamento apontado já estiver presente no diff, não alegue que ele está ausente; descreva somente um problema comprovado diferente ou não gere comentário.
 - Não suponha que uma variável, coleção ou estado esteja desatualizado sem mostrar no diff onde ele é capturado, alterado ou reutilizado de forma incorreta. Não solicite apenas uma confirmação; descreva o caminho de execução que produz o comportamento incorreto.
 - Se a análise concluir que "não há bug funcional", "a lógica está correta" ou que o comportamento foi preservado, NÃO gere um comentário sobre dificuldade de auditoria, legibilidade ou necessidade de confirmação. Essas observações não são defeitos acionáveis por si só.
-- Não classifique como problema de performance apenas o fato de uma operação ter sido movida para dentro de um bloco \`synchronized\`, de um lock ou de um loop. Só comente performance se o diff demonstrar um aumento concreto de trabalho, contenção, complexidade ou custo em um caminho executado; não peça apenas testes para confirmar uma possibilidade.
 - Uma sugestão de teste não transforma uma hipótese em bug. Recomende testes somente depois de demonstrar no diff o comportamento incorreto que o teste deve reproduzir.
 - Limite de volume: recomende ao modelo entre 0 e 8 comentários, priorizando qualidade sobre quantidade. O limite defensivo da aplicação é de 12 comentários inline. Se o PR não tiver falhas reais, retorne a lista de comentários vazia.
 - Não gere comentários duplicados ou sobrepostos para o mesmo problema. Prefira um comentário de alto valor a vários comentários fracos.
@@ -239,7 +238,6 @@ CRITICAL RULES:
 - Do not make contradictory claims. If the condition, validation, or behavior being discussed is already present in the diff, do not claim that it is missing.
 - Do not assume that a variable, collection, or state is stale without identifying where the diff captures, changes, or incorrectly reuses it. Do not merely ask for confirmation; explain the execution path that causes the incorrect behavior.
 - If the analysis concludes that there is no functional bug, that the logic is correct, or that behavior was preserved, return no comment about auditability, readability, or the need for confirmation. These observations are not actionable defects by themselves.
-- Do not report a performance issue merely because an operation moved inside a \`synchronized\` block, lock, or loop. Report performance only when the diff demonstrates a concrete increase in work, contention, complexity, or cost on an executed path; do not ask only for tests to confirm a possibility.
 - A test suggestion does not turn a hypothesis into a bug. Recommend tests only after demonstrating the incorrect behavior that the test should reproduce.
 - If no issues found, return empty comments array: "comments": []
 `;
