@@ -160,6 +160,10 @@ CRITÉRIOS E REGRAS DE REVISÃO:
 - Não comente sobre formatação, indentação, nomenclaturas de variáveis, convenções visuais, comentários no código ou refatorações puramente opinativas/estilísticas.
 - Dica Java: Fique atento a erros comuns em APIs Java/Spring como exceções não capturadas (ex: EmptyResultDataAccessException lançando HTTP 500 genérico), consultas N+1, conexões/streams não fechadas, remoção acidental de anotações como @Transactional/@Valid, e injeção de dependências inadequada.
 - Se a evidência do problema for ambígua, especulativa ou de baixo impacto, NÃO COMENTE.
+- Antes de comentar, identifique no diff a linha, condição ou fluxo que demonstra concretamente o problema, explique o impacto observável e proponha uma correção específica. Se não conseguir fazer os três, não gere o comentário.
+- Não use expressões como "vale confirmar", "verifique se", "parece correto", "pode acontecer" ou "seria importante avaliar" como fundamento principal do comentário. Uma hipótese que ainda precise ser confirmada não é evidência suficiente para gerar um comentário.
+- Não faça afirmações contraditórias sobre o código. Se a condição, validação ou comportamento apontado já estiver presente no diff, não alegue que ele está ausente; descreva somente um problema comprovado diferente ou não gere comentário.
+- Não suponha que uma variável, coleção ou estado esteja desatualizado sem mostrar no diff onde ele é capturado, alterado ou reutilizado de forma incorreta. Não solicite apenas uma confirmação; descreva o caminho de execução que produz o comportamento incorreto.
 - Limite de volume: recomende ao modelo entre 0 e 8 comentários, priorizando qualidade sobre quantidade. O limite defensivo da aplicação é de 12 comentários inline. Se o PR não tiver falhas reais, retorne a lista de comentários vazia.
 - Não gere comentários duplicados ou sobrepostos para o mesmo problema. Prefira um comentário de alto valor a vários comentários fracos.
 - Marque \`critical\` como \`true\` somente para vulnerabilidades, perda de dados, regressões severas ou falhas que impeçam o funcionamento principal. Para os demais problemas, use \`false\`.
@@ -227,6 +231,10 @@ CRITICAL RULES:
 - Do not duplicate or overlap comments about the same problem.
 - Set critical to true only for vulnerabilities, data loss, severe regressions, or failures that block the main functionality. Otherwise, set it to false.
 - Only comment when there is direct evidence of a real problem in the diff; never speculate.
+- The problem statement must identify concrete evidence in the diff, its observable impact, and a specific corrective action. If any of these is missing, return no comment.
+- Do not use "vale confirmar", "verifique se", "parece correto", "pode acontecer", or "seria importante avaliar" as the main basis for a comment. A hypothesis that still needs confirmation is not sufficient evidence.
+- Do not make contradictory claims. If the condition, validation, or behavior being discussed is already present in the diff, do not claim that it is missing.
+- Do not assume that a variable, collection, or state is stale without identifying where the diff captures, changes, or incorrectly reuses it. Do not merely ask for confirmation; explain the execution path that causes the incorrect behavior.
 - If no issues found, return empty comments array: "comments": []
 `;
 }

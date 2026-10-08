@@ -10,6 +10,9 @@ describe('review prompt builders', () => {
     expect(systemPrompt).toContain('limite defensivo da aplicação é de 12');
     expect(systemPrompt).toContain('Não gere comentários duplicados ou sobrepostos');
     expect(systemPrompt).toContain('Marque `critical` como `true` somente');
+    expect(systemPrompt).toContain('identifique no diff a linha, condição ou fluxo');
+    expect(systemPrompt).toContain('Não faça afirmações contraditórias sobre o código');
+    expect(systemPrompt).toContain('Não suponha que uma variável, coleção ou estado');
     expect(systemPrompt).toContain('Use camelCase.');
   });
 
@@ -23,6 +26,7 @@ describe('review prompt builders', () => {
 
     expect(userPrompt).toContain('<PR title>');
     expect(userPrompt).toContain('Return ONLY a valid JSON object');
+    expect(userPrompt).toContain('A hypothesis that still needs confirmation');
     expect(userPrompt).toContain('"comments": []');
   });
 });
