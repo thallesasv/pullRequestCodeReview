@@ -13,6 +13,9 @@ describe('review prompt builders', () => {
     expect(systemPrompt).toContain('identifique no diff a linha, condição ou fluxo');
     expect(systemPrompt).toContain('Não faça afirmações contraditórias sobre o código');
     expect(systemPrompt).toContain('Não suponha que uma variável, coleção ou estado');
+    expect(systemPrompt).toContain('Se a análise concluir que "não há bug funcional"');
+    expect(systemPrompt).toContain('Não classifique como problema de performance');
+    expect(systemPrompt).toContain('Uma sugestão de teste não transforma uma hipótese em bug');
     expect(systemPrompt).toContain('Use camelCase.');
   });
 
@@ -27,6 +30,7 @@ describe('review prompt builders', () => {
     expect(userPrompt).toContain('<PR title>');
     expect(userPrompt).toContain('Return ONLY a valid JSON object');
     expect(userPrompt).toContain('A hypothesis that still needs confirmation');
+    expect(userPrompt).toContain('If the analysis concludes that there is no functional bug');
     expect(userPrompt).toContain('"comments": []');
   });
 });
