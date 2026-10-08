@@ -6,7 +6,7 @@ Thank you for your interest in contributing to PR Review AI!
 
 1. Fork the repository
 2. Clone your fork locally
-3. Install dependencies with `pnpm install`
+3. Install dependencies with `npm install` or `pnpm install`
 4. Create a new branch for your feature/fix: `git checkout -b feature-name`
 
 ## Development Setup
@@ -15,8 +15,9 @@ Thank you for your interest in contributing to PR Review AI!
 
 - Node.js (LTS version recommended) + Typescript
 - [Github personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
-- LLM API key from OpenAI, Anthropic or GoogleAI
-- (recommended) pnpm package manager
+- Anthropic API key
+- Node.js 24 or later for the GitHub Action
+- (optional) pnpm package manager
 
 ## Development Workflow
 
@@ -31,29 +32,29 @@ Thank you for your interest in contributing to PR Review AI!
 
 ## Testing
 
-1. Copy the `.env.example` file to `.env`:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-2. Configure your environment variables in `.env`:
+1. Configure the environment variables used by the local CLI in `.env` or in the shell:
 
    ```env
-   # Required: Choose your AI provider
-   AI_PROVIDER=anthropic # or openai
-
-   # Required: Set your API key and model based on the chosen provider
-   LLM_API_KEY=...
-   LLM_MODEL=...
-
-   # Required: Github personal access token
    GITHUB_TOKEN=...
+   LLM_API_KEY=...
+   LLM_MODEL=claude-sonnet-5
+   LLM_PROVIDER=ai-sdk
    ```
 
-   And uncomment one of the events that you want to test: `pull_request` or `pull_request_review_comment`
+2. Run the local CLI against a Pull Request:
 
-3. Run `pnpm dev` to test the updated reviewer in the Pull Request specied in .env
+   ```bash
+   npm run review -- --pr 123 --owner owner --repo repository --dry-run
+   ```
+
+   Use `--list-prs` to list Pull Requests and `--out [path]` to save the dry-run output.
+
+3. Run the tests and build before opening a Pull Request:
+
+   ```bash
+   npm test
+   npm run build
+   ```
 
 ## Pull Request Process
 
