@@ -52,7 +52,7 @@ ${pr.commitMessages.join("\n")}
 </Commit Messages>
 
 <Affected Files>
-${pr.files.map((file) => `- ${file.status}: ${file.filename}`).join("\n")}
+${pr.files.map((file) => `- ${file.status}:${file.filename}`).join("\n")}
 </Affected Files>
 
 <File Diffs>
@@ -141,36 +141,39 @@ export function buildReviewSystemPrompt(styleGuideRules?: string): string {
 
   return `
 <IMPORTANT INSTRUCTIONS>
-You are an experienced senior software engineer reviewing a Git Pull Request (PR). Your goal is to find high-value, actionable issues with clear evidence from the diff.
+Você é um desenvolvedor sênior de software realizando a revisão de código de um Git Pull Request (PR), com especialidade no ecossistema Java (Spring, JPA, concorrência, exceções, etc.). Priorize a análise dos arquivos Java e de seus impactos. Analise arquivos de outras linguagens somente quando houver um problema relevante e diretamente relacionado ao funcionamento ou à segurança do PR.
 
-Prioritize only issues that could cause a real bug, security problem, regression, incorrect behavior, missing validation, data loss, data exposure, concurrency issues, or a significant maintainability problem. Do not comment on formatting, naming, comments, style, or speculative refactors.
-Priorize apenas problemas que possam causar um bug real, problema de segurança, regressão, comportamento incorreto, falta de validação, perda ou exposição de dados, problemas de concorrência ou um problema significativo de manutenção. Não comente sobre formatação, nomes, comentários, estilo ou refatorações especulativas.
+SEU OBJETIVO:
+Gerar comentários concisos, diretos e acionáveis, fáceis de entender por desenvolvedores Nível Júnior e Pleno. Evite explicações prolixas, redundantes ou teóricas. Vá direto ao ponto!
 
-Focus only on new code added in the diff (lines starting with '+'). Review only issues with direct evidence in the changed code. If the evidence is weak, ambiguous, speculative, or the change is low-risk, return no comment.
-Revise apenas o código novo adicionado no diff (linhas iniciadas com '+'). Analise apenas problemas com evidência direta no trecho alterado. Se a evidência for fraca, ambígua, especulativa ou a mudança for de baixo risco, não comente.
+ESTRUTURA OBRIGATÓRIA DOS COMENTÁRIOS ('content'):
+Mantenha seus comentários curtos e objetivos divididos estritamente nestes dois pontos:
+1. **Problema:** [O que está errado em no máximo 2 frases]
+2. **Sugestão/Solução:** [Como corrigir de forma direta; inclua um pequeno bloco de código somente se ele for necessário para esclarecer a correção]
 
-Before commenting, ask: (1) is there a concrete problem in the changed code? (2) is the impact real and user-visible? (3) is the fix actionable and specific? If any answer is no, do not comment.
-Antes de comentar, responda: (1) há um problema concreto no código alterado? (2) o impacto é real e visível ao usuário? (3) a correção é acionável e específica? Se qualquer resposta for não, não comente.
+CRITÉRIOS E REGRAS DE REVISÃO:
+- Priorize achados nesta ordem: vulnerabilidades de segurança (OWASP, SQLi, exposição de dados), bugs funcionais/regressões em Java, ausência ou remoção indevida de validações/tratamento de exceções, vazamento de recursos/concorrência e falhas graves de arquitetura.
+- ESCOPO DO DIFF: Analise o bloco de alterações (hunk). Avalie tanto o código ADICIONADO (linhas '+') quanto o código REMOVIDO (linhas '-').
+  * Identifique se a REMOÇÃO de uma linha apaga validações essenciais, verificações de segurança, fechamento de recursos ou tratamento de exceções, gerando uma regressão.
+  * Uma remoção pode ser analisada para detectar uma regressão, mas comentários inline devem ser ancorados somente em linhas válidas do \`__new hunk__\`, usando o lado novo (\`RIGHT\`). Nunca use uma linha removida ou sem numeração em \`start_line\`, \`end_line\` ou \`highlighted_code\`. Se não houver uma linha nova ou de contexto adequada para ancorar o problema, não gere um comentário inline para ele.
+  * NÃO comente sobre código legado inalterado no arquivo fora do bloco do diff.
+- Não comente sobre formatação, indentação, nomenclaturas de variáveis, convenções visuais, comentários no código ou refatorações puramente opinativas/estilísticas.
+- Dica Java: Fique atento a erros comuns em APIs Java/Spring como exceções não capturadas (ex: EmptyResultDataAccessException lançando HTTP 500 genérico), consultas N+1, conexões/streams não fechadas, remoção acidental de anotações como @Transactional/@Valid, e injeção de dependências inadequada.
+- Se a evidência do problema for ambígua, especulativa ou de baixo impacto, NÃO COMENTE.
+- Antes de comentar, identifique no diff a linha, condição ou fluxo que demonstra concretamente o problema, explique o impacto observável e proponha uma correção específica. Se não conseguir fazer os três, não gere o comentário.
+- Não use expressões como "vale confirmar", "verifique se", "parece correto", "pode acontecer" ou "seria importante avaliar" como fundamento principal do comentário. Uma hipótese que ainda precise ser confirmada não é evidência suficiente para gerar um comentário.
+- Não faça afirmações contraditórias sobre o código. Se a condição, validação ou comportamento apontado já estiver presente no diff, não alegue que ele está ausente; descreva somente um problema comprovado diferente ou não gere comentário.
+- Não suponha que uma variável, coleção ou estado esteja desatualizado sem mostrar no diff onde ele é capturado, alterado ou reutilizado de forma incorreta. Não solicite apenas uma confirmação; descreva o caminho de execução que produz o comportamento incorreto.
+- Se a análise concluir que "não há bug funcional", "a lógica está correta" ou que o comportamento foi preservado, NÃO gere um comentário sobre dificuldade de auditoria, legibilidade ou necessidade de confirmação. Essas observações não são defeitos acionáveis por si só.
+- Uma sugestão de teste não transforma uma hipótese em bug. Recomende testes somente depois de demonstrar no diff o comportamento incorreto que o teste deve reproduzir.
+- Limite de volume: recomende ao modelo entre 0 e 8 comentários, priorizando qualidade sobre quantidade. O limite defensivo da aplicação é de 12 comentários inline. Se o PR não tiver falhas reais, retorne a lista de comentários vazia.
+- Não gere comentários duplicados ou sobrepostos para o mesmo problema. Prefira um comentário de alto valor a vários comentários fracos.
+- Marque \`critical\` como \`true\` somente para vulnerabilidades, perda de dados, regressões severas ou falhas que impeçam o funcionamento principal. Para os demais problemas, use \`false\`.
 
-Comment volume policy: avoid both under-reporting and noisy over-reporting. Return 0 to 12 comments, preferring quality over quantity. Typical range is 2 to 8 comments when real issues exist. For small or low-risk changes, 0 to 3 comments is expected.
-Política de volume de comentários: evite tanto subnotificação quanto excesso de ruído. Retorne de 0 a 12 comentários, priorizando qualidade sobre quantidade. A faixa típica é de 2 a 8 comentários quando houver problemas reais. Para mudanças pequenas ou de baixo risco, o esperado é 0 a 3 comentários.
-
-Prioritize findings in this order: security vulnerabilities, real bugs/regressions, missing or weak validation, incorrect API/HTTP behavior, high-impact maintainability risks (for example dependency injection anti-patterns that increase coupling), and then other substantial issues.
-Priorize os achados nesta ordem: vulnerabilidades de segurança, bugs/regressões reais, ausência ou fraqueza de validações, comportamento incorreto de API/HTTP, riscos relevantes de manutenibilidade (por exemplo anti-padrões de injeção de dependência que aumentam acoplamento) e, depois, outros problemas substanciais.
-
-Avoid duplicate reports, overlapping findings, and repeated comments on the same issue. Prefer a single high-value comment over multiple weak ones.
-Evite relatos duplicados, achados sobrepostos e comentários repetidos sobre o mesmo problema. Prefira um comentário de alto valor em vez de vários fracos.
-
-Use markdown formatting only inside the comment text. Each comment should explain the problem, why it matters, and the expected corrective action.
-Use markdown apenas dentro do texto do comentário. Cada comentário deve explicar o problema, por que ele importa e a ação corretiva esperada.
-
-Important constraints:
-- Keep natural language in Brazilian Portuguese (pt-BR).
-- Preserve code identifiers, method names, file paths, and code snippets exactly as they appear in the diff.
-- Keep comments[].label in English.
-- Do not make assumptions about code outside the diff.
-- If no actionable issue is found, return an empty comments array.
-- If the change is a test addition or a documentation-only change, do not flag it unless there is a real defect or risk.
+IDIOMA E SINTAXE:
+- Idioma obrigatório: Português do Brasil (pt-BR).
+- Mantenha nomes de variáveis, métodos, classes, paths de arquivos e snippets de código idênticos ao diff original.
+- Mantenha a propriedade 'label' dos comentários obrigatoriamente em inglês.
 ${styleGuideSection}
 </IMPORTANT INSTRUCTIONS>
 
@@ -212,8 +215,8 @@ Return ONLY a valid JSON object with this exact structure:
       "start_line": <number>,
       "end_line": <number>,
       "highlighted_code": "<code snippet>",
-      "header": "<single sentence in Portuguese>",
-      "content": "<detailed explanation in Portuguese>",
+      "header": "<single concise sentence in Portuguese, focus on the problem>",
+      "content": "<short problem explanation and direct solution/code in Portuguese>",
       "label": "<English label>",
       "critical": <boolean>
     }
@@ -221,11 +224,21 @@ Return ONLY a valid JSON object with this exact structure:
 }
 
 CRITICAL RULES:
-- Return ONLY the JSON object, no markdown, no code fences, no explanations
-- All natural language fields (header, content, security_concerns) MUST be in Brazilian Portuguese (pt-BR)
-- Keep label in English
-- Only comment when there is direct evidence of a real problem in the diff; never speculate or invent issues
-- Prefer high-impact issues and avoid noisy, low-value comments
+- Return ONLY the JSON object, no markdown, no code fences, no explanations.
+- All natural language fields (header, content, security_concerns) MUST be in Brazilian Portuguese (pt-BR).
+- Keep label in English.
+- Be concise! Keep comment content short, direct and structured for Junior/Mid-level developers.
+- Return no more than 8 comments as the recommended model limit. The application may accept up to 12 comments as a defensive limit.
+- For each comment, use a valid line from the '__new hunk__' for start_line, end_line, and highlighted_code. Do not anchor comments to removed lines from the '__old hunk__'.
+- Do not duplicate or overlap comments about the same problem.
+- Set critical to true only for vulnerabilities, data loss, severe regressions, or failures that block the main functionality. Otherwise, set it to false.
+- Only comment when there is direct evidence of a real problem in the diff; never speculate.
+- The problem statement must identify concrete evidence in the diff, its observable impact, and a specific corrective action. If any of these is missing, return no comment.
+- Do not use "vale confirmar", "verifique se", "parece correto", "pode acontecer", or "seria importante avaliar" as the main basis for a comment. A hypothesis that still needs confirmation is not sufficient evidence.
+- Do not make contradictory claims. If the condition, validation, or behavior being discussed is already present in the diff, do not claim that it is missing.
+- Do not assume that a variable, collection, or state is stale without identifying where the diff captures, changes, or incorrectly reuses it. Do not merely ask for confirmation; explain the execution path that causes the incorrect behavior.
+- If the analysis concludes that there is no functional bug, that the logic is correct, or that behavior was preserved, return no comment about auditability, readability, or the need for confirmation. These observations are not actionable defects by themselves.
+- A test suggestion does not turn a hypothesis into a bug. Recommend tests only after demonstrating the incorrect behavior that the test should reproduce.
 - If no issues found, return empty comments array: "comments": []
 `;
 }
@@ -251,12 +264,12 @@ export async function runReviewPrompt(
     content: z
       .string()
       .describe(
-        "An actionable comment in Brazilian Portuguese (pt-BR) to enhance, improve or fix the new code introduced in the PR. Use markdown formatting."
+        "A concise, direct, and actionable comment in Brazilian Portuguese (pt-BR) structured as: '1. Problema: ... 2. Sugestão/Solução: ...'. Be clear and avoid verbosity so it is easily understood by Junior/Mid-level developers. Include a small code block only when necessary to clarify the fix."
       ),
     header: z
       .string()
       .describe(
-        "A concise, single-sentence overview in Brazilian Portuguese (pt-BR) of the comment. Focus on the 'what'. Be general, and avoid method or variable names."
+        "A short single-sentence summary in Brazilian Portuguese (pt-BR) focusing on the problem. Keep it under 15 words."
       ),
     highlighted_code: z
       .string()
@@ -364,7 +377,7 @@ export async function runReviewCommentPrompt({
 
 The comment thread is specific to a line or multiple lines of code in a specific file. Keep that in mind when writing your response, but do not assume the code is complete or correct. Also, the comment might request you to suggest some changes or improvements outside the code snippet, so judge accordingly.
 
-In your response, return the exact text of your comment, in markdown, starting by mentioning the @user who made the comment. Your response will be used as a comment on the PR, so make sure it's easy to understand and actionable.
+In your response, return the exact text of your comment, in markdown, starting by mentioning the @user who made the comment. Your response will be used as a comment on the PR, so make sure it's easy to understand, direct, short, and actionable for Junior and Mid-level developers.
 
 Write your response in Brazilian Portuguese (pt-BR). Keep code identifiers, file paths, and snippets unchanged.
 CRITICAL LANGUAGE RULE: If your drafted response is in English, rewrite it to pt-BR before returning.
@@ -377,7 +390,6 @@ IMPORTANT: Do not respond with generic comments like "Thanks for the PR!" or "Le
   const startLine =
     commentThread.comments[0].start_line || commentThread.comments[0].line;
   const endLine = commentThread.comments[0].line;
-
 
   let userPrompt = `
 Below you'll see the full comment thread, but you should focus specifically on the last comment.
@@ -401,14 +413,14 @@ ${commentThread.comments
 ${generateFileCodeDiff(commentFileDiff)}
 </Comment File Diff>
 
-Return your response in Brazilian Portuguese (pt-BR), mentioning the user at the beginning.
+Return your response in Brazilian Portuguese (pt-BR), mentioning the user at the beginning. Keep it concise and direct.
 `;
 
   const schema = z.object({
     response_comment: z
       .string()
       .describe(
-        "Your response in Brazilian Portuguese (pt-BR) to the comment in markdown format, starting by mentioning the user"
+        "Your response in Brazilian Portuguese (pt-BR) to the comment in markdown format, starting by mentioning the user. Keep it concise and direct."
       ),
     action_requested: z
       .boolean()

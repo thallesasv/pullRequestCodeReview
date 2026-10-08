@@ -2,7 +2,7 @@
 
 ## 1. Visão geral
 
-O repositório implementa uma GitHub Action e um CLI local em TypeScript para automatizar revisões de Pull Requests com apoio de Modelos de Linguagem de Grande Escala (LLMs), utilizando primariamente o modelo **Claude Sonnet 5** (`claude-sonnet-5`) via provedor `@ai-sdk/anthropic`. A ferramenta analisa o conteúdo de Pull Requests, gera resumos executivos, produz comentários acionáveis diretamente nas linhas alteradas do código e responde a comentários de revisão de forma interativa.
+O repositório implementa uma GitHub Action e um CLI local em TypeScript para automatizar revisões de Pull Requests com apoio de Modelos de Linguagem de Grande Escala (LLMs), utilizando os modelos **Claude Sonnet 4.5, 4.6 e 5** via `@ai-sdk/anthropic`. A ferramenta analisa o conteúdo de Pull Requests, gera resumos executivos, produz comentários acionáveis diretamente nas linhas alteradas do código e responde a comentários de revisão de forma interativa.
 
 A proposta arquitetural foi desenhada para separar claramente três responsabilidades:
 
@@ -17,7 +17,7 @@ flowchart TD
   A[Evento do GitHub ou CLI] --> B[Load de contexto]
   B --> C[Coleta de commits, arquivos e comentários]
   C --> D[Parse dos diffs e montagem de mensagens]
-  D --> E[Chamada ao Claude Sonnet 5 via AI-SDK]
+  D --> E[Chamada ao modelo configurado via AI-SDK]
   E --> F[Validação do JSON retornado via Zod Schema]
   F --> G[Publicação do resumo e dos comentários no PR]
 
@@ -107,25 +107,25 @@ Essa abordagem reduz o consumo de tokens da API da Anthropic e previne refatora�
 
 ### 4.5. Comentário de carregamento
 
-Antes de invocar o modelo Claude Sonnet 5, o sistema publica ou atualiza um comentário informando que a análise está em andamento (`buildLoadingMessage()`). O comentário lista o intervalo de commits analisado e os arquivos sob revisão.
+Antes de invocar o modelo configurado, o sistema publica ou atualiza um comentário informando que a análise está em andamento (`buildLoadingMessage()`). O comentário lista o intervalo de commits analisado e os arquivos sob revisão.
 
 ### 4.6. Geração do resumo executivo
 
-A função `runSummaryPrompt()` em `src/prompts.ts` envia ao Claude Sonnet 5 os diffs formatados, o título, a descrição e os commits. A resposta é validada via Zod e retorna o seguinte JSON estruturado:
+A função `runSummaryPrompt()` em `src/prompts.ts` envia ao modelo configurado os diffs formatados, o título, a descrição e os commits. A resposta é validada via Zod e retorna o seguinte JSON estruturado:
 
 - `title`: Título resumido da alteração.
 - `description`: Descrição executiva do impacto.
 - `files`: Resumo do impacto por arquivo.
-- `type`: Lista de categorias do PR (`BUG`, `FEATURE`, `REFACTOR`, `TESTS`, etc.).
+- `type`: Lista de categorias do PR, mantidas em inglês para preservar categorias estáveis.
 
 Esse resumo é posteriormente utilizado para atualizar o comentário principal do PR no GitHub.
 
 ### 4.7. Geração e curadoria da revisão técnica
 
-A função `runReviewPrompt()` submete os trechos alterados para a análise do Claude Sonnet 5. O prompt instrui o modelo a comentar apenas linhas novas (`+`) com evidência direta de um problema real. Antes da publicação, o código valida o arquivo, remove comentários duplicados, ranqueia os candidatos e aplica limites:
+A função `runReviewPrompt()` submete os trechos alterados para a análise do modelo configurado. O prompt prioriza arquivos Java e seus impactos, mas pode considerar outras linguagens quando houver um problema relevante. Remoções também podem ser analisadas para detectar regressões; comentários inline, porém, só podem ser ancorados em linhas numeradas do `__new hunk__`, no lado novo (`RIGHT`). Antes da publicação, o código valida o arquivo, remove comentários duplicados, ranqueia os candidatos e aplica limites:
 
 - **Ranqueamento por Criticidade:** Comentários críticos têm prioridade; entre os demais, segurança, bugs, problemas possíveis, desempenho e manutenibilidade recebem pesos decrescentes.
-- **Limite de comentários de linha:** São selecionados no máximo 8 comentários não críticos, além de todos os comentários críticos. Assim, o total pode ultrapassar 12 quando houver muitos comentários críticos.
+- **Limite de comentários de linha:** O modelo é instruído a recomendar de zero a oito comentários. A aplicação usa 12 como limite defensivo geral, reserva no máximo oito vagas para comentários não críticos e prioriza os comentários críticos. Muitos comentários críticos podem fazer o total ultrapassar esse limite defensivo, pois eles são preservados pela regra de prioridade.
 - **Comentários de arquivo:** Comentários sem `end_line` são enviados separadamente e não entram nesse limite.
 
 ### 4.8. Modo Dry-Run
@@ -140,7 +140,7 @@ O módulo `src/pull_request_comment.ts` é acionado quando um desenvolvedor resp
 2. Ignora mensagens geradas pela própria ferramenta (evitando loops infinitos).
 3. Exige que a thread seja relevante, por conter uma assinatura, menção ou marcador reconhecido pela ferramenta.
 4. Recupera a thread e localiza o diff do arquivo associado.
-5. Executa `runReviewCommentPrompt()` enviando o histórico da conversa e o código-fonte ao Claude Sonnet 5.
+5. Executa `runReviewCommentPrompt()` enviando o histórico da conversa e o diff do arquivo ao modelo configurado.
 6. Se a IA determinar que uma resposta é necessária, publica a réplica como reply na mesma thread.
 
 ## 6. Configuração e provedores de IA (`src/config.ts` e `src/ai.ts`)
@@ -155,7 +155,7 @@ As configurações opcionais incluem `LLM_PROVIDER` (atualmente `ai-sdk`), `GITH
 
 ### 6.2. Configuração do Provedor Anthropic
 
-O projeto utiliza o provedor `@ai-sdk/anthropic` para comunicação com os modelos Claude Sonnet 4.5, 4.6 e 5.
+O projeto utiliza o provedor `ai-sdk` e o pacote `@ai-sdk/anthropic` para comunicação com os modelos Claude Sonnet 4.5, 4.6 e 5. Não há adaptadores ativos para OpenAI, Google ou SAP AI Core.
 
 ### 6.3. Validação Estruturada com Zod
 
@@ -163,7 +163,7 @@ Para prevenir retornos malformatados em linguagem natural, as respostas estrutur
 
 ## 7. Parsing de Diffs e Assinaturas Invisíveis (`src/diff.ts` e `src/comments.ts`)
 
-- **Parse de Hunks (`src/diff.ts`):** O patch é processado linha por linha para identificar marcadores `@@`. As linhas de adição (`+`) são numeradas de acordo com a posição final no arquivo novo, garantindo o alinhamento correto das caixas de comentário inline no GitHub.
+- **Parse de Hunks (`src/diff.ts`):** O patch é processado linha por linha para identificar marcadores `@@`. O `__new hunk__` remove linhas excluídas e numera linhas adicionadas e de contexto conforme o arquivo novo. O `__old hunk__` mantém as linhas removidas para análise de regressões, mas elas não podem ser usadas como âncora de comentários inline.
 - **Idempotência por Assinaturas (`src/comments.ts` e `src/messages.ts`):** Comentários inline e respostas gerados contêm a assinatura invisível `<!-- prreview.ai: comment -->`. O comentário-resumo usa `<!-- prreview.ai: overview message -->` e contém um payload entre `<!-- prreview.ai: payload --` e `-- prreview.ai: payload -->`. Essas marcas permitem identificar mensagens próprias, atualizar o resumo existente e executar revisões incrementais sem criar novos resumos a cada execução.
 
 ## 8. CLI Local para Testes e Validação Experimental (`src/cli.ts`)
@@ -175,7 +175,7 @@ O arquivo `src/cli.ts` fornece uma interface de linha de comando para testar a f
 - `--list-prs`: Lista os Pull Requests abertos do repositório alvo.
 - `--pr <número>`: Executa a análise no PR informado.
 - `--dry-run`: Exibe o resumo e os comentários no terminal sem postar no GitHub.
-- `--out <caminho>`: Salva a saída textual capturada em um arquivo local. Sem caminho, usa `dry/pr-<número>.txt`.
+- `--out [caminho]`: Salva a saída textual capturada em um arquivo local. Sem caminho, usa `dry/pr-<número>.txt`.
 
 ### Aplicação na Pesquisa Acadêmica (TCC II)
 

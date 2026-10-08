@@ -79,7 +79,8 @@ Arquivo principal: `src/prompts.ts`.
 - O campo `label` dos comentarios continua em ingles para manter uma categoria estavel de priorizacao.
 - O prompt de revisao foi reestruturado e passou a enfatizar apenas problemas concretos, acionaveis e sustentados diretamente pelo diff.
 - Foram explicitamente desestimulados comentarios sobre formatacao, nomes, estilo, comentarios e refatoracoes especulativas.
-- O volume esperado passou a ser de zero a doze comentarios, com preferencia por poucos achados de alto valor.
+- O modelo passou a ser instruído a recomendar de zero a oito comentários, com preferência por poucos achados de alto valor. A aplicação mantém doze como limite defensivo para comentários inline e reserva no máximo oito vagas para comentários não críticos.
+- O prompt passou a priorizar arquivos Java e seus impactos, analisar outras linguagens somente quando houver risco relevante e distinguir a análise de linhas removidas da ancoragem de comentários no lado novo do diff.
 - Foram adicionadas as funcoes exportadas `buildReviewSystemPrompt()` e `buildReviewUserPrompt()` para separar a montagem dos prompts.
 - O prompt do usuario agora inclui um contrato JSON explicito, sem markdown, cercas de codigo ou explicacoes adicionais.
 - Os campos de seguranca e os textos de resumo tambem receberam instrucoes de localizacao para pt-BR.

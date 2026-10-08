@@ -4,10 +4,15 @@ describe('review prompt builders', () => {
   it('uses concise instructions focused on high-value actionable findings', () => {
     const systemPrompt = buildReviewSystemPrompt('Use camelCase.');
 
-    expect(systemPrompt).toContain('Priorize apenas problemas');
-    expect(systemPrompt).toContain('evidência direta no trecho alterado');
-    expect(systemPrompt).toContain('Retorne de 0 a 12 comentários');
-    expect(systemPrompt).toContain('A faixa típica é de 2 a 8 comentários');
+    expect(systemPrompt).toContain('Priorize a análise dos arquivos Java');
+    expect(systemPrompt).toContain('linhas válidas do `__new hunk__`');
+    expect(systemPrompt).toContain('entre 0 e 8 comentários');
+    expect(systemPrompt).toContain('limite defensivo da aplicação é de 12');
+    expect(systemPrompt).toContain('Não gere comentários duplicados ou sobrepostos');
+    expect(systemPrompt).toContain('Marque `critical` como `true` somente');
+    expect(systemPrompt).toContain('identifique no diff a linha, condição ou fluxo');
+    expect(systemPrompt).toContain('Não faça afirmações contraditórias sobre o código');
+    expect(systemPrompt).toContain('Não suponha que uma variável, coleção ou estado');
     expect(systemPrompt).toContain('Use camelCase.');
   });
 
@@ -21,6 +26,7 @@ describe('review prompt builders', () => {
 
     expect(userPrompt).toContain('<PR title>');
     expect(userPrompt).toContain('Return ONLY a valid JSON object');
+    expect(userPrompt).toContain('A hypothesis that still needs confirmation');
     expect(userPrompt).toContain('"comments": []');
   });
 });
